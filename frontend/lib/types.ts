@@ -1,0 +1,46 @@
+export interface Product {
+  id: string
+  name: string
+  description: string
+  price: number
+  originalPrice?: number
+  category: "smartphones" | "laptops" | "tablets" | "accessories"
+  brand: string
+  image: string
+  images: string[]
+  inStock: boolean
+  rating: number
+  reviewCount: number
+  specs: Record<string, string>
+  featured?: boolean
+}
+
+export interface CartItem {
+  product: Product
+  quantity: number
+}
+
+export interface User {
+  id: string
+  email: string
+  name: string
+  avatar?: string
+}
+
+export interface Order {
+  id: string
+  userId: string
+  items: CartItem[]
+  total: number
+  status: "pending" | "processing" | "shipped" | "delivered"
+  createdAt: Date
+  shippingAddress: Address
+}
+
+export interface Address {
+  street: string
+  city: string
+  state: string
+  zipCode: string
+  country: string
+}
