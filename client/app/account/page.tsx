@@ -94,7 +94,7 @@ export default function AccountPage() {
                 <CardContent className="pt-6">
                   <div className="flex flex-col items-center text-center mb-6">
                     <Avatar className="h-20 w-20 mb-3">
-                      <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
+                      {/* <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.username} /> */}
                       <AvatarFallback>
                         {user.username
                           .split(" ")
@@ -102,7 +102,7 @@ export default function AccountPage() {
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
-                    <h3 className="font-semibold">{user.name}</h3>
+                    <h3 className="font-semibold">{user.username}</h3>
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
 
