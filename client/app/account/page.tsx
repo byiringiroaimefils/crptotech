@@ -9,37 +9,58 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Package, User, MapPin, CreditCard, LogOut } from "lucide-react"
+import axios from "axios"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export default function AccountPage() {
-  // Mock user data
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    avatar: "/placeholder.svg?height=100&width=100",
+  const router = useRouter()
+  const [loading, setLoading] = useState(true) // prevent flicker before auth check
+  const [user, setUser] = useState<any>(null)
+
+  // ✅ Allow only logged-in users
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/api/dashboard", {
+          withCredentials: true,
+        })
+        // If success, store user data if returned
+        setUser(res.data.user || { name: "John Doe", email: "john.doe@example.com" })
+      } catch (err) {
+        // Not authenticated → redirect to login
+        router.push("/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+    checkAuth()
+  }, [router])
+
+  const handleLogout = async () => {
+    try {
+      const API_BASE_URL = "http://localhost:3001/api"
+      await axios.get(`${API_BASE_URL}/account/logout`, { withCredentials: true })
+      router.push("/login")
+    } catch (err) {
+      console.error("Logout failed:", err)
+    }
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>Loading...</p>
+      </div>
+    )
+  }
+
+  if (!user) return null // prevent rendering if not logged in
+
   const orders = [
-    {
-      id: "ORD-001",
-      date: "2024-01-15",
-      status: "delivered",
-      total: 1299.0,
-      items: 2,
-    },
-    {
-      id: "ORD-002",
-      date: "2024-01-10",
-      status: "shipped",
-      total: 249.0,
-      items: 1,
-    },
-    {
-      id: "ORD-003",
-      date: "2024-01-05",
-      status: "processing",
-      total: 2499.0,
-      items: 1,
-    },
+    { id: "ORD-001", date: "2024-01-15", status: "delivered", total: 1299.0, items: 2 },
+    { id: "ORD-002", date: "2024-01-10", status: "shipped", total: 249.0, items: 1 },
+    { id: "ORD-003", date: "2024-01-05", status: "processing", total: 2499.0, items: 1 },
   ]
 
   const getStatusColor = (status: string) => {
@@ -75,9 +96,9 @@ export default function AccountPage() {
                     <Avatar className="h-20 w-20 mb-3">
                       <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.name} />
                       <AvatarFallback>
-                        {user.name
+                        {user.username
                           .split(" ")
-                          .map((n) => n[0])
+                          .map((n: string) => n[0])
                           .join("")}
                       </AvatarFallback>
                     </Avatar>
@@ -110,6 +131,7 @@ export default function AccountPage() {
                       Payment Methods
                     </Button>
                     <Button
+                      onClick={handleLogout}
                       variant="ghost"
                       className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
                     >

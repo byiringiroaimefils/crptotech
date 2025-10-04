@@ -2,6 +2,7 @@
 const express = require('express')
 const app = express()
 const port = 3001
+const cors = require("cors")
 const authMiddleware = require("./middleware/Auth")
 const cookieParser = require("cookie-parser")
 const dbConnection = require("./db/connect")
@@ -11,6 +12,13 @@ const accountModel = require("./models/Account")
 
 // adding app middleware
 app.use(express.json())
+// allowing app to use cors
+app.use(cors({
+    origin: "http://localhost:3000", // Frontend URL
+    credentials: true, // Allow credentials (cookies)
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}))
 // allowing app to use cookie parser
 app.use(cookieParser())
 
