@@ -5,12 +5,16 @@ const mongoose = require("mongoose")
 const accountSchema = mongoose.Schema({
     email: {
         type: String,
-        required: [true, "usrname is required"],
+        required: [true, "email is required"],
         unique: true
     },
     username: {
         type: String,
         required: [true, "username is required"],
+    },
+    password: {
+        type: String,
+        required: [true, "password is required"],
     },
     phoneNumber: {
         type: String,
@@ -19,21 +23,8 @@ const accountSchema = mongoose.Schema({
     role: {
         type: String,
         required: [true, "role is required"],
-        enum: ["administrator","sub-administrator", "lawyer", "user"]
-    },
-    lawyerLicenseNumber: {
-        type: String,
-        required: false,
-    },
-    password: {
-        type: String,
-        required: [true, "role is required"],
-        minlength: [8, "enter password above 7 characters"]
-    },
-    isActivated: {
-        type: Boolean,
-        default: false
-    },
+        enum: ["admin", "user"]
+    }
 })
 
 // creating account model/collection based on account schema

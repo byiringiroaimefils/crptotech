@@ -1,4 +1,4 @@
-const accountModel = require("../../../models/Account");
+const accountModel = require("../models/Account");
 const bcrypt = require("bcrypt");
 
 exports.Register = async (req, res) => {
@@ -6,7 +6,7 @@ exports.Register = async (req, res) => {
     const role = "user";
 
     // Step 1: Basic Input Validation
-    if (!username || !email || !password || !phoneNumber) {
+    if (!username || !email || !phoneNumber || !password ) {
         return res.status(400).json({
             success: false,
             message: "All fields username, email, password, phoneNumber are required."
@@ -60,7 +60,6 @@ exports.Register = async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             role,
-            isActivated: true
         });
 
         await newAccount.save();

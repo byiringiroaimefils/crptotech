@@ -2,7 +2,7 @@
 const mongoose = require("mongoose")
 
 // connecting express app to mongo db
-mongoose.connect(process.env.NODE_ENV === 'production' ? process.env.MONGO_URI : "mongodb://localhost:27017/e-commerce", )
+mongoose.connect(process.env.NODE_ENV === 'production' ? process.env.MONGO_URI : "mongodb://localhost:27017/crptotech", )
 .then(()=>{
     console.log("Successfully Connected to MongoDB")
 })

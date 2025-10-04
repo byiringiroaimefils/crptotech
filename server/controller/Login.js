@@ -1,4 +1,4 @@
-const accountModel = require("../../../models/Account");
+const accountModel = require("../models/Account");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -23,13 +23,6 @@ exports.Login = async (req, res) => {
             });
         }
 
-        // Step 4: Check if the account is activated
-        if (!user.isActivated) {
-            return res.status(401).json({
-                success: false,
-                message: "Your account is not activated. Please contact administrator"
-            });
-        }
 
         // Step 5: Verify password
         const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -43,7 +36,7 @@ exports.Login = async (req, res) => {
         // Step 6: Generate JWT token
         const token = jwt.sign(
             { id: user._id, role: user.role },
-            process.env.JWT_SECRET,
+            "process.env.JWT_SECRET",
             { expiresIn: "1d" }
         );
 

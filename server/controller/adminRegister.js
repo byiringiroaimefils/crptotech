@@ -1,15 +1,15 @@
-const accountModel = require("../../../models/Account");
+const accountModel = require("../models/Account");
 const bcrypt = require("bcrypt");
 
 exports.Register = async (req, res) => {
-    const { username, email, password } = req.body;
-    const role = "administrator";
+    const { username, email, password, phoneNumber } = req.body;
+    const role = "admin";
 
     // Step 1: Basic Input Validation
-    if (!username || !email || !password) {
+    if (!username || !email || !phoneNumber || !password ) {
         return res.status(400).json({
             success: false,
-            message: "All fields username, email, password are required"
+            message: "All fields username, email, password, phoneNumber are required."
         });
     }
 
@@ -27,7 +27,7 @@ exports.Register = async (req, res) => {
             });
         }
 
-         // check if password is longer than 7 characters
+        // check if password is longer than 7 characters
         if (password.length < 8) {
             return res.status(400).json({
                 success: false,
@@ -35,6 +35,13 @@ exports.Register = async (req, res) => {
             });
         }
 
+        // check if phone number is longer than 7 characters
+        if (phoneNumber.length < 8) {
+            return res.status(400).json({
+                success: false,
+                message: "phoneNumber must be at least 8 characters long"
+            });
+        }
         // Step 3: Hash password safely
         let hashedPassword;
         try {
@@ -50,28 +57,25 @@ exports.Register = async (req, res) => {
         const newAccount = new accountModel({
             username,
             email,
-            phoneNumber:null,
+            phoneNumber,
             password: hashedPassword,
             role,
-            isActivated:true
         });
 
         await newAccount.save();
-
-        // return message if lawyer account was created
-
+        // return message if user account was created
         return res.status(201).json({
             success: true,
-            message: "Admin account created successfully."
+            message: "User account created successfully."
         });
 
     } catch (error) {
         // log an error if an expected error happen
 
-        console.error("RegisterAdmin Error:", error);
+        console.error("User Registration Error:", error);
         return res.status(500).json({
             success: false,
-            message: "Server error while creating admin account."
+            message: "Server error while creating User account."
         });
     }
 };
