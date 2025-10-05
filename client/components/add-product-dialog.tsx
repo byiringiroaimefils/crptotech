@@ -46,10 +46,126 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
     featured: false,
   })
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log(formData)
-    onClose()
+    
+    try {
+      const formDataToSend = new FormData()
+      
+      // Add basic product information
+      formDataToSend.append('name', formData.name)
+      formDataToSend.append('description', formData.description)
+      formDataToSend.append('price', formData.price.toString())
+      formDataToSend.append('originalPrice', formData.originalPrice.toString())
+      formDataToSend.append('category', formData.category)
+      formDataToSend.append('brand', formData.brand)
+      formDataToSend.append('inStock', formData.inStock.toString())
+      formDataToSend.append('rating', formData.rating.toString())
+      formDataToSend.append('reviewCount', formData.reviewCount.toString())
+      formDataToSend.append('featured', formData.featured.toString())
+
+      // Add specifications as a JSON string
+      formDataToSend.append('specs', JSON.stringify(formData.specs))
+
+      // Get the main image file
+      const mainImageInput = document.getElementById('mainImage') as HTMLInputElement
+      const mainImageFile = mainImageInput?.files?.[0]
+      if (mainImageFile) {
+        formDataToSend.append('image', mainImageFile)
+      }
+
+      // Get additional image files
+      const additionalImageInputs = [0, 1, 2].map(index =>
+        document.getElementById(`additionalImage${index}`) as HTMLInputElement
+      )
+      
+      additionalImageInputs.forEach(input => {
+        const file = input?.files?.[0]
+        if (file) {
+          formDataToSend.append('additionalImages', file)
+        }
+      })
+
+      // Validate required fields
+      if (!mainImageFile) {
+        throw new Error('Main product image is required')
+      }
+
+      if (!formData.name || !formData.description || !formData.price || !formData.category || !formData.brand) {
+        throw new Error('Please fill in all required fields')
+      }
+
+      console.log('Submitting form data:', {
+        ...formData,
+        image: mainImageFile ? mainImageFile.name : null
+      });
+
+      // Log the FormData contents before sending
+      const formDataEntries = Array.from(formDataToSend.entries()).map(([key, value]) => {
+        if (value instanceof File) {
+          return [key, { name: value.name, type: value.type, size: value.size }];
+        }
+        return [key, value];
+      });
+      console.log('FormData being sent:', Object.fromEntries(formDataEntries));
+
+      const response = await fetch('http://localhost:3001/api/products/add', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      let responseData;
+      const contentType = response.headers.get('content-type');
+      
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          responseData = await response.json();
+        } else {
+          const textData = await response.text();
+          console.error('Unexpected response type:', contentType);
+          console.error('Response text:', textData);
+          throw new Error('Invalid response format from server');
+        }
+      } catch (err) {
+        console.error('Error parsing response:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+        throw new Error(`Server response error: ${errorMessage}`);
+      }
+
+      if (!response.ok) {
+        console.error('Server error response:', responseData);
+        throw new Error(
+          responseData.details || 
+          responseData.message || 
+          `Server error: ${response.status} ${response.statusText}`
+        );
+      }
+
+      console.log('Product added successfully:', responseData)
+      onClose()
+    } catch (error) {
+      // Type guard to ensure we handle both Error objects and unknown errors
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'An unexpected error occurred while adding the product';
+
+      console.error('Error details:', {
+        message: errorMessage,
+        error: error
+      });
+
+      // Show a more user-friendly error message
+      const userMessage = errorMessage.includes('Server response error') || errorMessage.includes('Server error')
+        ? 'Failed to communicate with the server. Please try again.'
+        : errorMessage;
+
+      alert(userMessage);
+
+      // If the error is related to validation, don't close the dialog
+      if (!errorMessage.includes('required') && !errorMessage.includes('fill in')) {
+        onClose();
+      }
+    }
   }
 
   const handleChange = (field: string, value: any) => {
@@ -66,10 +182,9 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
   const handleImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      // In a real application, you would handle file upload here
-      // For now, we'll just store the file name
+      // Store the file object in the state
       const newImages = [...formData.images]
-      newImages[index] = file.name
+      newImages[index] = URL.createObjectURL(file)
       handleChange('images', newImages)
     }
   }
