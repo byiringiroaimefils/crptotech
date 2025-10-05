@@ -39,8 +39,8 @@ export default function ProductsPage() {
   const updatedCategories = useMemo(() => {
     return categories.map(category => ({
       ...category,
-      count: category.id === 'all' 
-        ? products.length 
+      count: category.id === 'all'
+        ? products.length
         : products.filter(p => p.category === category.id).length
     }))
   }, [products])
