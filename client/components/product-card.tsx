@@ -19,6 +19,9 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCart()
   const [isAdding, setIsAdding] = useState(false)
+  
+  console.log('ProductCard received product:', product)
+  console.log('Product image URL:', product.image)
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -59,7 +62,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star
                     key={i}
-                    className={`h-3 w-3 FRW{
+                    className={`h-3 w-3 ${
                       i < Math.floor(product.rating) ? "fill-primary text-primary" : "fill-muted text-muted"
                     }`}
                   />
@@ -71,9 +74,9 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
 
             <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold">FRW{product.price}</span>
+              <span className="text-2xl font-bold">${product.price}</span>
               {product.originalPrice && (
-                <span className="text-sm text-muted-foreground line-through">FRW{product.originalPrice}</span>
+                <span className="text-sm text-muted-foreground line-through">${product.originalPrice}</span>
               )}
             </div>
           </div>

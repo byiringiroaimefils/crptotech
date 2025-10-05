@@ -1,17 +1,19 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ProductCard } from "@/components/product-card"
-import { products, categories, brands } from "@/lib/products-data"
+import { categories, brands } from "@/lib/products-data"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { SlidersHorizontal } from "lucide-react"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { fetchProducts } from "@/lib/products-api"
+import type { Product } from "@/lib/types"
 
 export default function ProductsPage() {
   const searchParams = useSearchParams()
@@ -20,6 +22,28 @@ export default function ProductsPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(categoryParam ? [categoryParam] : [])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [sortBy, setSortBy] = useState("featured")
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true)
+      const fetchedProducts = await fetchProducts()
+      setProducts(fetchedProducts)
+      setLoading(false)
+    }
+    loadProducts()
+  }, [])
+
+  // Update category counts based on available products
+  const updatedCategories = useMemo(() => {
+    return categories.map(category => ({
+      ...category,
+      count: category.id === 'all' 
+        ? products.length 
+        : products.filter(p => p.category === category.id).length
+    }))
+  }, [products])
 
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products
@@ -55,7 +79,7 @@ export default function ProductsPage() {
     }
 
     return sorted
-  }, [selectedCategories, selectedBrands, sortBy])
+  }, [products, selectedCategories, selectedBrands, sortBy])
 
   const toggleCategory = (category: string) => {
     setSelectedCategories((prev) =>
@@ -73,16 +97,16 @@ export default function ProductsPage() {
       <div>
         <h3 className="font-semibold mb-3">Categories</h3>
         <div className="space-y-2">
-          {categories
+          {updatedCategories
             .filter((cat) => cat.id !== "all")
             .map((category) => (
               <div key={category.id} className="flex items-center gap-2">
                 <Checkbox
-                  id={`category-FRW{category.id}`}
+                  id={`category-${category.id}`}
                   checked={selectedCategories.includes(category.id)}
                   onCheckedChange={() => toggleCategory(category.id)}
                 />
-                <Label htmlFor={`category-FRW{category.id}`} className="text-sm cursor-pointer">
+                <Label htmlFor={`category-${category.id}`} className="text-sm cursor-pointer">
                   {category.name} ({category.count})
                 </Label>
               </div>
@@ -97,11 +121,11 @@ export default function ProductsPage() {
           {brands.map((brand) => (
             <div key={brand} className="flex items-center gap-2">
               <Checkbox
-                id={`brand-FRW{brand}`}
+                id={`brand-${brand}`}
                 checked={selectedBrands.includes(brand)}
                 onCheckedChange={() => toggleBrand(brand)}
               />
-              <Label htmlFor={`brand-FRW{brand}`} className="text-sm cursor-pointer">
+              <Label htmlFor={`brand-${brand}`} className="text-sm cursor-pointer">
                 {brand}
               </Label>
             </div>
@@ -188,7 +212,20 @@ export default function ProductsPage() {
               </div>
 
               {/* Product Grid */}
-              {filteredAndSortedProducts.length > 0 ? (
+              {loading ? (
+                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  {[1, 2, 3, 4, 5, 6].map((n) => (
+                    <div key={n} className="animate-pulse">
+                      <div className="bg-gray-200 h-64 rounded-lg"></div>
+                      <div className="mt-4 space-y-3">
+                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredAndSortedProducts.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                   {filteredAndSortedProducts.map((product) => (
                     <ProductCard key={product.id} product={product} />
