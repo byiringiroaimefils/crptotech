@@ -1,37 +1,46 @@
 "use client"
 
-import { use } from "react"
-import { notFound } from "next/navigation"
+import { useEffect, useState } from "react"
 import Image from "next/image"
-import { useState } from "react"
 import { Star, ShoppingCart, Truck, Shield, ArrowLeft, Check } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { products } from "@/lib/products-data"
 import { useCart } from "@/lib/cart-context"
 import Link from "next/link"
+import type { Product } from "@/lib/types"
+import { fetchProducts } from "@/lib/products-api"
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const { id } = params
-  const product = products.find((p) => p.id === id)
   const { addItem } = useCart()
   const [selectedImage, setSelectedImage] = useState(0)
   const [isAdding, setIsAdding] = useState(false)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  if (!product) {
-    notFound()
-  }
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true)
+      const all = await fetchProducts()
+      const found = all.find((p) => p.id === id)
+      setProduct(found ?? null)
+      setLoading(false)
+    }
+    load()
+  }, [id])
 
   const handleAddToCart = () => {
     setIsAdding(true)
-    addItem(product)
+    if (product) {
+      addItem(product)
+    }
     setTimeout(() => setIsAdding(false), 1500)
   }
 
-  const discount = product.originalPrice
+  const discount = product?.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0
 
@@ -41,6 +50,22 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
+          {loading && (
+            <div className="text-muted-foreground">Loading...</div>
+          )}
+          {!loading && !product && (
+            <div className="space-y-6">
+              <p className="text-lg font-medium">Product not found.</p>
+              <Button variant="ghost" asChild>
+                <Link href="/products">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Products
+                </Link>
+              </Button>
+            </div>
+          )}
+          {!loading && product && (
+          <>
           {/* Back Button */}
           <Button variant="ghost" asChild className="mb-6">
             <Link href="/products">
@@ -69,7 +94,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               <div className="grid grid-cols-4 gap-4">
                 <button
                   onClick={() => setSelectedImage(0)}
-                  className={`relative aspect-square overflow-hidden rounded-lg bg-muted FRW{
+                  className={`relative aspect-square overflow-hidden rounded-lg bg-muted ${
                     selectedImage === 0 ? "ring-2 ring-primary" : ""
                   }`}
                 >
@@ -79,13 +104,13 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx + 1)}
-                    className={`relative aspect-square overflow-hidden rounded-lg bg-muted FRW{
+                    className={`relative aspect-square overflow-hidden rounded-lg bg-muted ${
                       selectedImage === idx + 1 ? "ring-2 ring-primary" : ""
                     }`}
                   >
                     <Image
                       src={img || "/placeholder.svg"}
-                      alt={`FRW{product.name} view FRW{idx + 1}`}
+                      alt={`${product.name} view ${idx + 1}`}
                       fill
                       className="object-cover"
                     />
@@ -105,7 +130,7 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-5 w-5 FRW{
+                        className={`h-5 w-5 ${
                           i < Math.floor(product.rating) ? "fill-primary text-primary" : "fill-muted text-muted"
                         }`}
                       />
@@ -197,6 +222,8 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               </TabsContent>
             </Tabs>
           </div>
+          </>
+          )}
         </div>
       </main>
 
