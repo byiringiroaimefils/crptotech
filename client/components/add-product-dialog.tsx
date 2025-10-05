@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -7,8 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
-import { useState } from "react"
 import type { Product } from "@/lib/types"
+import Image from "next/image"
 
 interface AddProductDialogProps {
   isOpen: boolean
@@ -49,7 +50,7 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
   })
 
   // Prefill when editing
-  React.useEffect(() => {
+  useEffect(() => {
     if (product && isOpen) {
       setFormData({
         name: product.name || "",
@@ -384,9 +385,17 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
                   type="file" 
                   accept="image/*"
                   onChange={(e) => handleChange('image', e.target.files?.[0]?.name || '')}
-                  required 
+                  required={!product}
                   className="w-full"
                 />
+                {product?.image && (
+                  <div className="mt-2">
+                    <p className="text-xs text-muted-foreground mb-2">Current image (kept if you don't upload a new one):</p>
+                    <div className="relative w-32 h-32 overflow-hidden rounded-md bg-muted">
+                      <Image src={product.image} alt={product.name} fill className="object-cover" />
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {[0, 1, 2].map((index) => (
@@ -399,6 +408,11 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
                       onChange={(e) => handleImageChange(index, e)}
                       className="w-full"
                     />
+                    {product?.images?.[index] && (
+                      <div className="relative w-28 h-28 overflow-hidden rounded-md bg-muted">
+                        <Image src={product.images[index]} alt={`${product.name} additional ${index+1}`} fill className="object-cover" />
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
