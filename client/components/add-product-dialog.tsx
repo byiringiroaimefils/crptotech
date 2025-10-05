@@ -13,6 +13,8 @@ import type { Product } from "@/lib/types"
 interface AddProductDialogProps {
   isOpen: boolean
   onClose: () => void
+  product?: Product | null
+  onSaved?: (product: Product) => void
 }
 
 interface ProductSpecs {
@@ -23,7 +25,7 @@ interface ProductSpecs {
   Battery: string
 }
 
-export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
+export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProductDialogProps) {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -45,6 +47,33 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
     },
     featured: false,
   })
+
+  // Prefill when editing
+  React.useEffect(() => {
+    if (product && isOpen) {
+      setFormData({
+        name: product.name || "",
+        description: product.description || "",
+        price: product.price || 0,
+        originalPrice: product.originalPrice || 0,
+        category: product.category || "",
+        brand: product.brand || "",
+        image: product.image || "",
+        images: Array.isArray(product.images) ? product.images : ["", "", ""],
+        inStock: product.inStock ?? true,
+        rating: product.rating || 0,
+        reviewCount: product.reviewCount || 0,
+        specs: {
+          Display: product.specs?.Display || "",
+          Chip: product.specs?.Chip || "",
+          Camera: product.specs?.Camera || "",
+          Storage: product.specs?.Storage || "",
+          Battery: product.specs?.Battery || "",
+        },
+        featured: product.featured || false,
+      })
+    }
+  }, [product, isOpen])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -86,8 +115,8 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
         }
       })
 
-      // Validate required fields
-      if (!mainImageFile) {
+      // Validate required fields (only require image on add)
+      if (!product && !mainImageFile) {
         throw new Error('Main product image is required')
       }
 
@@ -109,12 +138,37 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
       });
       console.log('FormData being sent:', Object.fromEntries(formDataEntries));
 
-      const response = await fetch('http://localhost:3001/api/products/add', {
-        method: 'POST',
-        body: formDataToSend,
-      });
+      let response: Response
+      let responseData: any
+      if (product) {
+        // Update (no image upload here; send JSON body)
+        const payload = {
+          name: formData.name,
+          description: formData.description,
+          price: formData.price,
+          originalPrice: formData.originalPrice,
+          category: formData.category,
+          brand: formData.brand,
+          inStock: formData.inStock,
+          rating: formData.rating,
+          reviewCount: formData.reviewCount,
+          featured: formData.featured,
+          specs: formData.specs,
+          images: formData.images.filter(Boolean),
+        }
+        response = await fetch(`http://localhost:3001/api/products/${product.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+      } else {
+        // Add new (multipart with images)
+        response = await fetch('http://localhost:3001/api/products/add', {
+          method: 'POST',
+          body: formDataToSend,
+        })
+      }
 
-      let responseData;
       const contentType = response.headers.get('content-type');
       
       try {
@@ -141,7 +195,33 @@ export function AddProductDialog({ isOpen, onClose }: AddProductDialogProps) {
         );
       }
 
-      console.log('Product added successfully:', responseData)
+      if (product) {
+        console.log('Product updated successfully:', responseData)
+        const updated = responseData.product
+        const mapped: Product = {
+          ...updated,
+          id: updated._id,
+          image: updated.imageUrl,
+          price: Number(updated.price),
+          originalPrice: updated.originalPrice ? Number(updated.originalPrice) : undefined,
+          rating: updated.rating ? Number(updated.rating) : 0,
+          reviewCount: updated.reviewCount ? Number(updated.reviewCount) : 0
+        }
+        onSaved?.(mapped)
+      } else {
+        console.log('Product added successfully:', responseData)
+        const created = responseData.product
+        const mapped: Product = {
+          ...created,
+          id: created._id,
+          image: created.imageUrl,
+          price: Number(created.price),
+          originalPrice: created.originalPrice ? Number(created.originalPrice) : undefined,
+          rating: created.rating ? Number(created.rating) : 0,
+          reviewCount: created.reviewCount ? Number(created.reviewCount) : 0
+        }
+        onSaved?.(mapped)
+      }
       onClose()
     } catch (error) {
       // Type guard to ensure we handle both Error objects and unknown errors

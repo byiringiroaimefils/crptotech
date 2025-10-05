@@ -14,9 +14,10 @@ import { useState } from "react"
 
 interface ProductCardProps {
   product: Product
+  footer?: React.ReactNode // Optional custom footer; if provided, overrides default Add to Cart footer
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, footer }: ProductCardProps) {
   const { addItem } = useCart()
   const [isAdding, setIsAdding] = useState(false)
   
@@ -82,26 +83,32 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         </CardContent>
 
-        <CardFooter className="p-4 pt-0">
-          <Button
-            className="w-full transition-all"
-            onClick={handleAddToCart}
-            disabled={!product.inStock}
-            variant={isAdding ? "default" : "default"}
-          >
-            {isAdding ? (
-              <>
-                <Check className="mr-2 h-4 w-4 animate-in zoom-in" />
-                Added!
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                {product.inStock ? "Add to Cart" : "Out of Stock"}
-              </>
-            )}
-          </Button>
-        </CardFooter>
+        {footer !== undefined ? (
+          <CardFooter className="p-4 pt-0">
+            {footer}
+          </CardFooter>
+        ) : (
+          <CardFooter className="p-4 pt-0">
+            <Button
+              className="w-full transition-all"
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              variant={isAdding ? "default" : "default"}
+            >
+              {isAdding ? (
+                <>
+                  <Check className="mr-2 h-4 w-4 animate-in zoom-in" />
+                  Added!
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  {product.inStock ? "Add to Cart" : "Out of Stock"}
+                </>
+              )}
+            </Button>
+          </CardFooter>
+        )}
       </Card>
     </Link>
   )

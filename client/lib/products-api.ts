@@ -32,3 +32,46 @@ export async function fetchProducts(): Promise<Product[]> {
         return []
     }
 }
+
+export async function updateProduct(id: string, update: Partial<Product>): Promise<Product | null> {
+    try {
+        const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(update)
+        })
+        const data = await response.json()
+        if (!response.ok || !data.success) {
+            console.error('Error updating product:', data.message)
+            return null
+        }
+        const p = data.product
+        return {
+            ...p,
+            id: p._id,
+            image: p.imageUrl,
+            price: Number(p.price),
+            originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
+            rating: p.rating ? Number(p.rating) : 0,
+            reviewCount: p.reviewCount ? Number(p.reviewCount) : 0
+        }
+    } catch (e) {
+        console.error('Error updating product:', e)
+        return null
+    }
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+    try {
+        const response = await fetch(`http://localhost:3001/api/products/${id}`, { method: 'DELETE' })
+        const data = await response.json()
+        if (!response.ok || !data.success) {
+            console.error('Error deleting product:', data.message)
+            return false
+        }
+        return true
+    } catch (e) {
+        console.error('Error deleting product:', e)
+        return false
+    }
+}
