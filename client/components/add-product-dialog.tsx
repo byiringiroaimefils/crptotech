@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { useToast } from "@/hooks/use-toast"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -48,6 +49,11 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
     },
     featured: false,
   })
+
+  // File input refs for reliable file access
+  const mainImageRef = useRef<HTMLInputElement | null>(null)
+  const additionalImageRefs = useRef<HTMLInputElement[]>([])
+  const { toast } = useToast()
 
   // Prefill when editing
   useEffect(() => {
@@ -98,17 +104,13 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
       formDataToSend.append('specs', JSON.stringify(formData.specs))
 
       // Get the main image file
-      const mainImageInput = document.getElementById('mainImage') as HTMLInputElement
-      const mainImageFile = mainImageInput?.files?.[0]
+      const mainImageFile = mainImageRef.current?.files?.[0]
       if (mainImageFile) {
         formDataToSend.append('image', mainImageFile)
       }
 
       // Get additional image files
-      const additionalImageInputs = [0, 1, 2].map(index =>
-        document.getElementById(`additionalImage${index}`) as HTMLInputElement
-      )
-      
+      const additionalImageInputs = additionalImageRefs.current
       additionalImageInputs.forEach(input => {
         const file = input?.files?.[0]
         if (file) {
@@ -209,6 +211,7 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           reviewCount: updated.reviewCount ? Number(updated.reviewCount) : 0
         }
         onSaved?.(mapped)
+        toast({ title: 'Product updated', description: 'The product was updated successfully.' })
       } else {
         console.log('Product added successfully:', responseData)
         const created = responseData.product
@@ -222,6 +225,7 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           reviewCount: created.reviewCount ? Number(created.reviewCount) : 0
         }
         onSaved?.(mapped)
+        toast({ title: 'Product created', description: 'The product was created successfully.' })
       }
       onClose()
     } catch (error) {
@@ -235,12 +239,14 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         error: error
       });
 
-      // Show a more user-friendly error message
+      // Show a more user-friendly error message via toast
       const userMessage = errorMessage.includes('Server response error') || errorMessage.includes('Server error')
         ? 'Failed to communicate with the server. Please try again.'
         : errorMessage;
-
-      alert(userMessage);
+      toast({
+        title: 'Failed to save product',
+        description: userMessage,
+      })
 
       // If the error is related to validation, don't close the dialog
       if (!errorMessage.includes('required') && !errorMessage.includes('fill in')) {
@@ -384,6 +390,7 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
                   id="mainImage" 
                   type="file" 
                   accept="image/*"
+                  ref={mainImageRef}
                   onChange={(e) => handleChange('image', e.target.files?.[0]?.name || '')}
                   required={!product}
                   className="w-full"
@@ -405,6 +412,9 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
                       id={`additionalImage${index}`} 
                       type="file" 
                       accept="image/*"
+                      ref={(el) => {
+                        if (el) additionalImageRefs.current[index] = el
+                      }}
                       onChange={(e) => handleImageChange(index, e)}
                       className="w-full"
                     />
