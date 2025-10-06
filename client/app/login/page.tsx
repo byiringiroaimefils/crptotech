@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
@@ -13,29 +13,56 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { Eye, EyeOff } from "lucide-react"
+import axios from "axios"
 
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  // 🔐 Redirect to dashboard if already authenticated
 
-    // Simulate authentication
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Login successful",
-        description: "Welcome back to TechStore!",
-      })
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await axios.get('http://localhost:3001/api/dashboard', { withCredentials: true });
+        router.push('/dashboard');
+      } catch (err) {
+        // Not authenticated — stay on login page
+
+      }
+    };
+    checkAuth();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/account/login`,
+        { email, password },
+        { withCredentials: true }
+      );
+
+      // Store user information in localStorage
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+      }
       router.push("/account")
-    }, 1000)
-  }
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -49,6 +76,11 @@ export default function LoginPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                  <p className="text-red-700">{error}</p>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input

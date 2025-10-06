@@ -6,13 +6,33 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useCart } from "@/lib/cart-context"
 import { useTheme } from "@/lib/theme-context"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import axios from "axios"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 
 export function Header() {
   const { itemCount } = useCart()
   const { theme, toggleTheme } = useTheme()
   const [searchQuery, setSearchQuery] = useState("")
+   const [role, setRole] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL;
+        const DASHBOARD_URL = "http://localhost:3001/api/dashboard";
+        const response = await axios.get(DASHBOARD_URL, {
+          withCredentials: true,
+        });
+        setIsAuthenticated(true);
+        setRole(response.data?.user?.role || "");
+      } catch {
+        setIsAuthenticated(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -75,12 +95,18 @@ export function Header() {
             </Link>
           </Button>
 
-          <Button variant="ghost" size="icon" asChild className="hidden md:flex">
+          {isAuthenticated ? <Button variant="ghost" size="icon" asChild className="hidden md:flex">
             <Link href="/account">
               <User className="h-5 w-5" />
               <span className="sr-only">Account</span>
             </Link>
-          </Button>
+          </Button>:
+          <Link href={'/login'}>
+              <Button className="bg-lawyer-primary px-5 hover:bg-lawyer-secondary text-white hidden md:block">
+                Sign In
+              </Button>
+            </Link>
+          }
 
           {/* Mobile Menu */}
           <Sheet>

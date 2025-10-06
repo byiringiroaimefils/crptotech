@@ -14,10 +14,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
 import { Eye, EyeOff } from "lucide-react"
+import axios from "axios"
 
 export default function SignupPage() {
-  const [name, setName] = useState("")
+  const [error, setError] = useState("")
+  const [username, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phoneNumber,setPhoneNumber] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
@@ -25,30 +28,24 @@ export default function SignupPage() {
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!agreeToTerms) {
-      toast({
-        title: "Terms required",
-        description: "Please agree to the terms and conditions",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
-
-    // Simulate account creation
-    setTimeout(() => {
-      setIsLoading(false)
-      toast({
-        title: "Account created",
-        description: "Welcome to TechStore!",
-      })
+ const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/account/register`,
+        { email, password,phoneNumber,username },
+        { withCredentials: true }
+      );
       router.push("/account")
-    }, 1000)
-  }
+    } catch (err: any) {
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError('Login failed. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -62,13 +59,18 @@ export default function SignupPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+              <p className="text-red-700">{error}</p>
+            </div>
+          )}
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
                   type="text"
                   placeholder="John Doe"
-                  value={name}
+                  value={username}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
@@ -81,6 +83,17 @@ export default function SignupPage() {
                   placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Phone Number</Label>
+                <Input
+                  id="email"
+                  type="text"
+                  placeholder="+250 7888 49494"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
                   required
                 />
               </div>
