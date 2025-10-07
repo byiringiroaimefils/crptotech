@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
+import { useRouter } from "next/navigation"
+import axios from "axios"
 
 export default function CatalogPage() {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false)
@@ -24,6 +26,24 @@ export default function CatalogPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [selectedBrands, setSelectedBrands] = useState<string[]>([])
   const [sortBy, setSortBy] = useState("featured")
+  const router = useRouter()
+
+  // ✅ Allow only logged-in users
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await axios.get("http://localhost:3001/api/dashboard", {
+          withCredentials: true,
+        })
+      } catch (err) {
+        // Not authenticated → redirect to login
+        router.push("/login")
+      } finally {
+        setLoading(false)
+      }
+    }
+    checkAuth()
+  }, [router])
 
   useEffect(() => {
     const load = async () => {
@@ -146,12 +166,12 @@ export default function CatalogPage() {
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row items-center justify-between mb-6 space-y-4 sm:space-y-0">
             <div className="w-full sm:w-auto text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl font-bold">Product Catalog</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">Product Store</h1>
               <p className="text-muted-foreground text-sm sm:text-base mt-1">Browse our collection of products</p>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="w-full sm:w-auto"
               onClick={() => setIsAddProductOpen(true)}
             >
@@ -160,14 +180,14 @@ export default function CatalogPage() {
             </Button>
           </div>
 
-          <AddProductDialog 
+          <AddProductDialog
             isOpen={isAddProductOpen}
             onClose={() => setIsAddProductOpen(false)}
           />
 
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
-              {[1,2,3,4,5,6,7,8].map((n) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
                 <div key={n} className="animate-pulse">
                   <div className="bg-gray-200 h-64 rounded-lg"></div>
                   <div className="mt-4 space-y-3">
@@ -277,7 +297,7 @@ export default function CatalogPage() {
       </main>
 
       {/* Add / Edit Dialog */}
-      <AddProductDialog 
+      <AddProductDialog
         isOpen={isAddProductOpen || !!editing}
         onClose={() => { setIsAddProductOpen(false); setEditing(null) }}
         product={editing}

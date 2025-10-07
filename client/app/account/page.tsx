@@ -108,9 +108,9 @@ export default function AccountPage() {
 
                   <nav className="space-y-1">
                     <Button variant="ghost" className="w-full justify-start bg-transparent" asChild>
-                      <Link href="/catalog">
+                      <Link href="/store">
                         <Package className="mr-2 h-4 w-4" />
-                        Product Catalog
+                        Product Store
                       </Link>
                     </Button>
 
