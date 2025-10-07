@@ -10,9 +10,10 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <span className="text-lg font-bold text-primary-foreground">T</span>
+                <span className="text-lg font-bold text-primary-foreground">C </span>
               </div>
-              <span className="text-xl font-bold">TechStore</span>
+              <span className="text-xl font-bold">
+CrptoTech</span>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Your trusted destination for premium electronics. Quality products, competitive prices, and exceptional

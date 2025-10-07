@@ -102,9 +102,9 @@ export function Header() {
             </Link>
           </Button>:
           <Link href={'/login'}>
-              <Button className="bg-lawyer-primary px-5 hover:bg-lawyer-secondary text-white hidden md:block">
+              <label className="bg-lawyer-primary text-sm px-5 hover:bg-lawyer-secondary dark:text-white text-black hidden md:block">
                 Sign In
-              </Button>
+              </label>
             </Link>
           }
 
@@ -120,7 +120,7 @@ export function Header() {
               <SheetHeader>
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col gap-4 mt-6">
+              <nav className="flex flex-col gap-4 mt-6 ml-5TechStore">
                 <Link href="/products" className="text-lg font-medium">
                   Products
                 </Link>
@@ -134,7 +134,7 @@ export function Header() {
                   Contact
                 </Link>
                 <Link href="/account" className="text-lg font-medium">
-                  Account
+                   Sign In
                 </Link>
               </nav>
             </SheetContent>
