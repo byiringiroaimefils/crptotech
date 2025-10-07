@@ -16,15 +16,35 @@ console.log('Environment Variables Loaded:', {
 
 // initalizing express app
 const express = require('express')
+// const session = require("express-session");
 const app = express()
 const port = 3001
 const cors = require("cors")
 const authMiddleware = require("./middleware/Auth")
 const cookieParser = require("cookie-parser")
 const dbConnection = require("./db/connect")
+const passport = require("./config/passport");
 
 // importing account model
 const accountModel = require("./models/Account")
+
+// Setup session (required by passport)
+// app.use(
+//   session({
+//     secret: process.env.JWT_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// );
+
+// Initialize Passport
+app.use(passport.initialize());
+const googleAuthRoutes = require("./routes/googleAuth");
+app.use("/api/auth", googleAuthRoutes);
+
+
+
+// app.use(passport.session());
 
 // adding app middleware
 app.use(express.json({ limit: '50mb' }))

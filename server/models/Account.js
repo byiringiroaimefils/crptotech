@@ -14,7 +14,7 @@ const accountSchema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: [true, "password is required"],
+        // required: [true, "password is required"],
     },
     phoneNumber: {
         type: String,
