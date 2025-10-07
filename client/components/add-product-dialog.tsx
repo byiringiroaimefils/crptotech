@@ -453,9 +453,16 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
             <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
               Cancel
             </Button>
+            {!product && (
             <Button type="submit" className="w-full sm:w-auto">
               Add Product
             </Button>
+            )}
+            {product && (
+            <Button type="submit" className="w-full sm:w-auto">
+              Update Product
+            </Button>
+            )}
           </div>
         </form>
       </DialogContent>
