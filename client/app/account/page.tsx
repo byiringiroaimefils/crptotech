@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Package, User, MapPin, CreditCard, LogOut } from "lucide-react"
+import { Settings,Package, User, MapPin, CreditCard, LogOut, Lock, LockIcon } from "lucide-react"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -107,12 +107,6 @@ export default function AccountPage() {
                   </div>
 
                   <nav className="space-y-1">
-                    <Button variant="ghost" className="w-full justify-start bg-transparent" asChild>
-                      <Link href="/store">
-                        <Package className="mr-2 h-4 w-4" />
-                        Product Store
-                      </Link>
-                    </Button>
 
                     <Button variant="ghost" className="w-full justify-start bg-transparent">
                       <Package className="mr-2 h-4 w-4" />
@@ -120,15 +114,17 @@ export default function AccountPage() {
                     </Button>
                     <Button variant="ghost" className="w-full justify-start bg-transparent">
                       <User className="mr-2 h-4 w-4" />
-                      Profile
+                      Personal Information
                     </Button>
                     <Button variant="ghost" className="w-full justify-start bg-transparent">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Addresses
+                      <LockIcon className="mr-2 h-4 w-4" />
+                      Security
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Payment Methods
+                    <Button variant="ghost" className="w-full justify-start bg-transparent" asChild>
+                      <Link href="">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
                     </Button>
                     <Button
                       onClick={handleLogout}
@@ -149,7 +145,6 @@ export default function AccountPage() {
                 <TabsList className="w-full justify-start">
                   <TabsTrigger value="orders">Orders</TabsTrigger>
                   <TabsTrigger value="profile">Profile</TabsTrigger>
-                  <TabsTrigger value="addresses">Addresses</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="orders" className="mt-6">
@@ -201,18 +196,6 @@ export default function AccountPage() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="addresses" className="mt-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Saved Addresses</CardTitle>
-                      <CardDescription>Manage your shipping addresses</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-muted-foreground">No saved addresses yet.</p>
-                      <Button className="mt-4">Add New Address</Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
               </Tabs>
             </div>
           </div>
