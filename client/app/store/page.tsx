@@ -18,7 +18,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { useRouter } from "next/navigation"
 import axios from "axios"
 
-export default function CatalogPage() {
+export default function () {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
