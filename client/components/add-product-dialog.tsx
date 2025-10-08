@@ -21,7 +21,6 @@ interface AddProductDialogProps {
 
 interface ProductSpecs {
   Display: string
-  Chip: string
   Camera: string
   Storage: string
   Battery: string
@@ -42,7 +41,6 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
     reviewCount: 0,
     specs: {
       Display: "",
-      Chip: "",
       Camera: "",
       Storage: "",
       Battery: "",
@@ -72,7 +70,6 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         reviewCount: product.reviewCount || 0,
         specs: {
           Display: product.specs?.Display || "",
-          Chip: product.specs?.Chip || "",
           Camera: product.specs?.Camera || "",
           Storage: product.specs?.Storage || "",
           Battery: product.specs?.Battery || "",

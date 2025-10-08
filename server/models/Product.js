@@ -47,7 +47,6 @@ const productSchema = new mongoose.Schema({
     },
     specs: {
         Display: { type: String, default: "" },
-        Chip: { type: String, default: "" },
         Camera: { type: String, default: "" },
         Storage: { type: String, default: "" },
         Battery: { type: String, default: "" }
