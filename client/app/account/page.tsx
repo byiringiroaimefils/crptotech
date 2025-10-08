@@ -114,17 +114,13 @@ export default function AccountPage() {
                       </Link>
                     </Button>
 
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
+                    <Button variant="ghost" className="w-full justify-start bg-transparent" value="orders">
                       <Package className="mr-2 h-4 w-4" />
                       Orders
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
+                    <Button variant="ghost" className="w-full justify-start bg-transparent" value="profile"> 
                       <User className="mr-2 h-4 w-4" />
                       Profile
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
-                      <MapPin className="mr-2 h-4 w-4" />
-                      Addresses
                     </Button>
                     <Button variant="ghost" className="w-full justify-start bg-transparent">
                       <CreditCard className="mr-2 h-4 w-4" />
@@ -149,7 +145,7 @@ export default function AccountPage() {
                 <TabsList className="w-full justify-start">
                   <TabsTrigger value="orders">Orders</TabsTrigger>
                   <TabsTrigger value="profile">Profile</TabsTrigger>
-                  <TabsTrigger value="addresses">Addresses</TabsTrigger>
+                  {/* <TabsTrigger value="addresses">Addresses</TabsTrigger> */}
                 </TabsList>
 
                 <TabsContent value="orders" className="mt-6">
@@ -201,7 +197,7 @@ export default function AccountPage() {
                   </Card>
                 </TabsContent>
 
-                <TabsContent value="addresses" className="mt-6">
+                {/* <TabsContent value="addresses" className="mt-6">
                   <Card>
                     <CardHeader>
                       <CardTitle>Saved Addresses</CardTitle>
@@ -212,7 +208,7 @@ export default function AccountPage() {
                       <Button className="mt-4">Add New Address</Button>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
             </div>
           </div>
