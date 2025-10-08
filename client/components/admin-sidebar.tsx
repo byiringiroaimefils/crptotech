@@ -13,51 +13,57 @@ const navigation = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const { open, toggle, setOpen } = require("./admin-sidebar-context").useAdminSidebar()
 
-  return (
-    <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-sidebar-border bg-sidebar">
-      <div className="flex h-full flex-col">
-
-        {/* Logo */}
-        {/* <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-bold text-primary-foreground">C</span>
-          </div>
-          <span className="text-xl font-bold">CrptoTech</span>
-        </Link> */}
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.name}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-sidebar-border p-4">
-          <div className="flex items-center justify-between rounded-lg bg-sidebar-accent px-3 py-2">
-            <span className="text-xs text-sidebar-foreground">Trial ends in 12 days</span>
-            <Link href="#" className="text-xs font-medium text-sidebar-primary hover:underline">
-              Upgrade
+  const SidebarContent = (
+    <div className="flex h-full flex-col">
+      <nav className="flex-1 space-y-1 px-3 py-4">
+        {navigation.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.name}
+              href={item.href}
+              onClick={() => setOpen(false)}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              {item.name}
             </Link>
-          </div>
+          )
+        })}
+      </nav>
+
+      <div className="border-t border-sidebar-border p-4">
+        <div className="flex items-center justify-between rounded-lg bg-sidebar-accent px-3 py-2">
+          <span className="text-xs text-sidebar-foreground">Trial ends in 12 days</span>
+          <Link href="#" className="text-xs font-medium text-sidebar-primary hover:underline">
+            Upgrade
+          </Link>
         </div>
       </div>
-    </aside>
+    </div>
+  )
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:fixed md:left-0 md:top-0 md:z-40 md:h-screen md:w-64 md:border-r md:border-sidebar-border md:bg-sidebar md:block">
+        {SidebarContent}
+      </aside>
+
+      {/* Mobile overlay drawer */}
+      {open && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="w-64 border-r border-sidebar-border bg-sidebar">{SidebarContent}</div>
+          <div className="flex-1 bg-black/40" onClick={() => setOpen(false)} />
+        </div>
+      )}
+    </>
   )
 }

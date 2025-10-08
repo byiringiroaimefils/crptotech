@@ -1,5 +1,6 @@
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { AdminHeader } from "@/components/admin-header"
+import { AdminSidebarProvider } from "@/components/admin-sidebar-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -86,13 +87,14 @@ export default function StockPage() {
   const outOfStockCount = products.filter((p) => p.status === "out-of-stock").length
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <AdminSidebarProvider>
+      <div className="flex min-h-screen bg-background">
+        <AdminSidebar />
 
-      <div className="ml-64 flex-1">
-        <AdminHeader />
+        <div className="ml-0 md:ml-64 flex-1">
+          <AdminHeader />
 
-        <main className="p-6">
+          <main className="p-6">
           {/* Alert Cards */}
           {(lowStockCount > 0 || outOfStockCount > 0) && (
             <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -127,12 +129,12 @@ export default function StockPage() {
 
           <Card className="bg-card">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <CardTitle className="text-foreground">Stock Management</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
+                <div className="flex w-full items-center gap-2 md:w-auto">
+                  <div className="relative flex-1 md:flex-none">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <Input placeholder="Search products..." className="w-64 pl-9" />
+                    <Input placeholder="Search products..." className="w-full pl-9" />
                   </div>
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />
@@ -142,7 +144,8 @@ export default function StockPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              {/* Table for md+ */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border">
@@ -197,10 +200,36 @@ export default function StockPage() {
                   </tbody>
                 </table>
               </div>
+
+              {/* Mobile cards */}
+              <div className="space-y-4 md:hidden">
+                {products.map((product) => (
+                  <div key={product.id} className="rounded-lg border border-border p-4 bg-card">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{product.name}</p>
+                        <p className="text-xs text-muted-foreground">{product.sku} • {product.category}</p>
+                        <p className="mt-2 text-sm">Price: {product.price}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium">Stock: {product.stock}</p>
+                        <div className="mt-2">
+                          <Badge className="capitalize">{product.status.replace("-", " ")}</Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <Button variant="ghost" className="flex-1">Edit</Button>
+                      <Button variant="outline" className="flex-1">Restock</Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </AdminSidebarProvider>
   )
 }
