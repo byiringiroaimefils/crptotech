@@ -2,13 +2,13 @@ export interface Product {
   id: string
   name: string
   description: string
+  quantity: number
   price: number
   originalPrice?: number
   category: "smartphones" | "laptops" | "tablets" | "accessories"
   brand: string
   image: string
   images: string[]
-  inStock: boolean
   rating: number
   reviewCount: number
   specs: Record<string, string>
