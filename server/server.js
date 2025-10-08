@@ -83,10 +83,12 @@ app.use((req, res, next) => {
 // importing routes
 const accountRoutes = require("./routes/account/router")
 const productRoutes = require("./routes/products")
+const cartRoutes = require("./routes/cart/router")
 
 // defining required routes 
 app.use("/api/account", accountRoutes)
 app.use("/api/products", productRoutes)
+app.use("/api/cart", cartRoutes)
 app.get("/api/dashboard",authMiddleware.Auth, async (req, res) => {
     try {
         const user = await accountModel.findById(req.user.id).select('-password');

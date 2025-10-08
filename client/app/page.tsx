@@ -221,6 +221,16 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
+<br /><br />
+          <div className="container mx-auto px-4">
+             <div className="mb-12 text-center">
+              <h2 className="text-3xl font-bold tracking-tight md:text-4xl">What recommanded for  you</h2>
+              <p className="mt-3 text-muted-foreground leading-relaxed">Lorem ipsum dolor sit amet consectetur, adipisicing</p>
+            </div>
+            <div>
+
+            </div>
+          </div>
         </section>
       </main>
 

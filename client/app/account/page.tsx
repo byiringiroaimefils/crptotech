@@ -108,11 +108,11 @@ export default function AccountPage() {
 
                   <nav className="space-y-1">
 
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
+                    <Button variant="ghost" className="w-full justify-start bg-transparent" value="orders">
                       <Package className="mr-2 h-4 w-4" />
                       Orders
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start bg-transparent">
+                    <Button variant="ghost" className="w-full justify-start bg-transparent" value="profile"> 
                       <User className="mr-2 h-4 w-4" />
                       Personal Information
                     </Button>
