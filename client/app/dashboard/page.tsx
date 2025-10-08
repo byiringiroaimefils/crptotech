@@ -1,5 +1,6 @@
 import { AdminSidebar } from "@/components/admin-sidebar"
 import { AdminHeader } from "@/components/admin-header"
+import { AdminSidebarProvider } from "@/components/admin-sidebar-context"
 import { StatCard } from "@/components/stat-card"
 import { RevenueChart } from "@/components/revenue-chart"
 import { OrdersChart } from "@/components/orders-chart"
@@ -9,13 +10,14 @@ import { DollarSign, ShoppingCart, Package, TrendingUp } from "lucide-react"
 
 export default function page() {
   return (
-    <div className="flex min-h-screen bg-background">
-      <AdminSidebar />
+    <AdminSidebarProvider>
+      <div className="flex min-h-screen bg-background">
+        <AdminSidebar />
 
-      <div className="ml-64 flex-1">
-        <AdminHeader />
+        <div className="ml-0 md:ml-64 flex-1">
+          <AdminHeader />
 
-        <main className="p-6">
+          <main className="p-6">
           {/* Stats Grid */}
           <div className="mb-6 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <StatCard
@@ -63,8 +65,9 @@ export default function page() {
               <TopProducts />
             </div>
           </div>
-        </main>
+          </main>
+        </div>
       </div>
-    </div>
+    </AdminSidebarProvider>
   )
 }
