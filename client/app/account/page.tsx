@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Settings,Package, User, MapPin, CreditCard, LogOut, Lock, LockIcon } from "lucide-react"
+import { Settings,Package, User, MapPin, CreditCard, LogOut, Lock, LockIcon, PenIcon } from "lucide-react"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -191,7 +191,10 @@ export default function AccountPage() {
                       <CardDescription>Update your personal information</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-muted-foreground">Profile settings coming soon...</p>
+                      <p className="text-muted-foreground">Username: {user.username}</p>
+                      <p className="text-muted-foreground">Email: {user.email}</p>
+                      <p className="text-muted-foreground">Phone: {user.phoneNumber}</p>
+                      <Button className="mt-5"><PenIcon /> Update Profile</Button>
                     </CardContent>
                   </Card>
                 </TabsContent>

@@ -24,7 +24,12 @@ const accountSchema = mongoose.Schema({
         type: String,
         required: [true, "role is required"],
         enum: ["admin", "user"]
-    }
+    },
+    authProvider:{
+        type: String,
+        required: [true, "authprovider is required"],
+        enum: ["jwt", "oauth"]
+    },
 })
 
 // creating account model/collection based on account schema

@@ -20,6 +20,7 @@ passport.use(
             email: profile.emails[0].value,
             password: "", // No password for Google users
             role: "user",
+            authProvider:"oauth"
           });
         }
 
