@@ -2,6 +2,7 @@
 
 import { Bell, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +29,12 @@ export function AdminHeader() {
       </div>
 
       <div className="flex items-center gap-4">
+        <Link href="/notification-page" >
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
         </Button>
+        </Link>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
