@@ -20,8 +20,8 @@ exports.addProduct = async (req, res) => {
         });
 
         const { 
-            name, description, price, originalPrice, 
-            category, brand, inStock, rating, 
+            name, description, quantity, price, originalPrice, 
+            category, brand, rating, 
             reviewCount, specs: specsString, featured 
         } = req.body;
 
@@ -106,13 +106,13 @@ exports.addProduct = async (req, res) => {
         const product = new Product({
             name,
             description,
+            quantity: Number(quantity || 1),
             price: Number(price),
             originalPrice: Number(originalPrice) || price,
             category,
             brand,
             imageUrl: mainUploadResponse.secure_url,
             images: additionalImageUrls,
-            inStock: inStock === 'true',
             rating: Number(rating) || 0,
             reviewCount: Number(reviewCount) || 0,
             specs, // Use the parsed specs from JSON string
