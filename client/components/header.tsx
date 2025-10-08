@@ -47,6 +47,9 @@ export function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
+          {isAuthenticated && role==='admin' ? <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">
+                  Dashboard
+                </Link>:''}
           <Link href="/products" className="text-sm font-medium transition-colors hover:text-primary">
             Products
           </Link>
@@ -121,6 +124,12 @@ export function Header() {
                 <SheetTitle>Menu</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-4 mt-6 ml-5TechStore">
+                {isAuthenticated && role==='admin' ? <Link href="/dashboard" className="text-lg font-medium">
+                  Dashboard
+                </Link>:''}
+                <Link href="/products" className="text-lg font-medium">
+                  Products
+                </Link>
                 <Link href="/products" className="text-lg font-medium">
                   Products
                 </Link>
