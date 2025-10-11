@@ -73,7 +73,6 @@ export default function OrdersPage() {
       if (o.items < minIt) return false
       if (!q) return true
       return (
-        String(o._id).toLowerCase().includes(q) ||
         String(o.customer).toLowerCase().includes(q) ||
         String(o.email).toLowerCase().includes(q)
       )
@@ -182,9 +181,9 @@ export default function OrdersPage() {
                       ) : filtered.length === 0 ? (
                         <tr><td colSpan={7} className="py-8 text-center text-sm text-muted-foreground">No orders found.</td></tr>
                       ) : (
-                        filtered.map((order) => (
+                        filtered.map((order,index) => (
                           <tr key={order._id} className="border-b border-border last:border-0">
-                            <td className="py-4 text-sm font-medium text-foreground">{order._id}</td>
+                            <td className="py-4 text-sm font-medium text-foreground">{index+1}</td>
                             <td className="py-4">
                               <div>
                                 <p className="text-sm font-medium text-foreground">{order.customer}</p>
@@ -201,9 +200,6 @@ export default function OrdersPage() {
                               <div className="flex gap-2">
                                 <Button variant="ghost" size="sm" asChild>
                                   <Link href={`/account/orders/${order._id}`}>View</Link>
-                                </Button>
-                                <Button variant="outline" size="sm" asChild>
-                                  <a href={`mailto:?subject=Order ${order._id}&body=Order ID: ${order._id}`}>Contact</a>
                                 </Button>
                               </div>
                             </td>
