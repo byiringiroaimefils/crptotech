@@ -33,11 +33,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import type { Order } from "@/lib/types"
 
 export default function AccountPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [orders, setOrders] = useState<Order[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -47,9 +49,9 @@ export default function AccountPage() {
     phoneNumber: "",
   })
 
-  // ✅ Check if user is logged in
+  // ✅ Check if user is logged in and load their orders
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndLoad = async () => {
       try {
         const res = await axios.get("http://localhost:3001/api/dashboard", {
           withCredentials: true,
@@ -60,13 +62,24 @@ export default function AccountPage() {
           email: res.data.user.email || "",
           phoneNumber: res.data.user.phoneNumber || "",
         })
+
+        // Fetch user's orders (server should return only orders for authenticated user)
+        try {
+          const ordersRes = await axios.get("http://localhost:3001/api/orders", {
+            withCredentials: true,
+          })
+          setOrders(ordersRes.data.orders || [])
+        } catch (ordErr) {
+          console.warn("Failed to load orders:", ordErr)
+          setOrders([])
+        }
       } catch (err) {
         router.push("/login")
       } finally {
         setLoading(false)
       }
     }
-    checkAuth()
+    checkAuthAndLoad()
   }, [router])
 
   const handleLogout = async () => {
@@ -116,12 +129,6 @@ export default function AccountPage() {
     )
 
   if (!user) return null
-
-  const orders = [
-    { id: "ORD-001", date: "2024-01-15", status: "delivered", total: 1299.0, items: 2 },
-    { id: "ORD-002", date: "2024-01-10", status: "shipped", total: 249.0, items: 1 },
-    { id: "ORD-003", date: "2024-01-05", status: "processing", total: 2499.0, items: 1 },
-  ]
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -227,39 +234,48 @@ export default function AccountPage() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        {orders.map((order) => (
-                          <div
-                            key={order.id}
-                            className="flex items-center justify-between border-b pb-4 last:border-0"
-                          >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-3">
-                                <p className="font-semibold">{order.id}</p>
-                                <Badge className={getStatusColor(order.status)}>
-                                  {order.status}
-                                </Badge>
+                        {orders.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No orders yet.</p>
+                        ) : (
+                          orders.map((order: any) => (
+                            <div
+                              key={order._id || order.id}
+                              className="flex items-center justify-between border-b pb-4 last:border-0"
+                            >
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-3">
+                                  <p className="font-semibold">{order._id || order.id}</p>
+                                  <Badge className={getStatusColor(order.status || "")}>
+                                    {order.status || "unknown"}
+                                  </Badge>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  {new Date(order.createdAt || order.date || Date.now()).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  })}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {(order.items || []).length} item(s)
+                                </p>
                               </div>
-                              <p className="text-sm text-muted-foreground">
-                                {new Date(order.date).toLocaleDateString("en-US", {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                })}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {order.items} item(s)
-                              </p>
+                              <div className="text-right">
+                                <p className="font-bold text-lg">
+                                  ${(order.total || order.amount || 0).toFixed ? (order.total || order.amount || 0).toFixed(2) : order.total || order.amount || 0}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="mt-2 bg-transparent"
+                                  onClick={() => router.push(`/account/orders/${order._id || order.id}`)}
+                                >
+                                  View Details
+                                </Button>
+                              </div>
                             </div>
-                            <div className="text-right">
-                              <p className="font-bold text-lg">
-                                ${order.total.toFixed(2)}
-                              </p>
-                              <Button variant="outline" size="sm" className="mt-2 bg-transparent">
-                                View Details
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
+                          ))
+                        )}
                       </div>
                     </CardContent>
                   </Card>

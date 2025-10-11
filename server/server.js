@@ -27,6 +27,7 @@ const passport = require("./config/passport");
 
 // importing account model
 const accountModel = require("./models/Account")
+const orderModel = require("./models/Order")
 
 // Setup session (required by passport)
 // app.use(
@@ -84,11 +85,13 @@ app.use((req, res, next) => {
 const accountRoutes = require("./routes/account/router")
 const productRoutes = require("./routes/products")
 const cartRoutes = require("./routes/cart/router")
+const ordersRoutes = require("./routes/ordersRoutes")
 
 // defining required routes 
 app.use("/api/account", accountRoutes)
 app.use("/api/products", productRoutes)
 app.use("/api/cart", cartRoutes)
+app.use("/api/orders", ordersRoutes)
 app.get("/api/dashboard",authMiddleware.Auth, async (req, res) => {
     try {
         const user = await accountModel.findById(req.user.id).select('-password');
