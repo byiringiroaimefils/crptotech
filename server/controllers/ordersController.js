@@ -56,6 +56,17 @@ exports.createOrder = async (req, res, next) => {
 /**
  * Get all orders for the logged-in user
  */
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({})
+      .populate("products.product", "name price image")
+      .sort({ createdAt: -1 });
+
+    res.json({ orders });
+  } catch (err) {
+    next(err);
+  }
+};
 exports.getMyOrders = async (req, res, next) => {
   try {
     const orders = await Order.find({ account: req.user.id })

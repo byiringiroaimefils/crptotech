@@ -11,6 +11,8 @@ router.post("/", ordersController.createOrder);
 
 // Get current user's orders
 router.get("/", ordersController.getMyOrders);
+// Get current user's orders
+router.get("/all", ordersController.getAllOrders);
 
 // Get specific order
 router.get("/:id", ordersController.getOrderById);
