@@ -244,9 +244,9 @@ export default function AccountPage() {
                             >
                               <div className="space-y-1">
                                 <div className="flex items-center gap-3">
-                                  <p className="font-semibold">{order._id || order.id}</p>
+                                  <p className="font-semibold">{order.products[0].product.name} +</p>
                                   <Badge className={getStatusColor(order.status || "")}>
-                                    {order.status || "unknown"}
+                                    {order.orderStatus || "unknown"}
                                   </Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
@@ -256,13 +256,13 @@ export default function AccountPage() {
                                     day: "numeric",
                                   })}
                                 </p>
-                                <p className="text-sm text-muted-foreground">
-                                  {(order.items || []).length} item(s)
-                                </p>
+                               <p className="text-sm text-muted-foreground">
+  {order.products?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0)} item(s)
+</p>
                               </div>
                               <div className="text-right">
                                 <p className="font-bold text-lg">
-                                  ${(order.total || order.amount || 0).toFixed ? (order.total || order.amount || 0).toFixed(2) : order.total || order.amount || 0}
+                                  ${order.totalAmount|| 0}
                                 </p>
                                 <Button
                                   variant="outline"
