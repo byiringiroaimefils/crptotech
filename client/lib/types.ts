@@ -8,6 +8,7 @@ export interface Product {
   category: "smartphones" | "laptops" | "tablets" | "accessories"
   brand: string
   image: string
+  imageUrl: string
   images: string[]
   rating: number
   reviewCount: number
