@@ -268,7 +268,7 @@ export default function AccountPage() {
                                   variant="outline"
                                   size="sm"
                                   className="mt-2 bg-transparent"
-                                  onClick={() => router.push(`/account/orders/${order._id || order.id}`)}
+                                  onClick={() => router.push(`/orders/${order._id || order.id}`)}
                                 >
                                   View Details
                                 </Button>

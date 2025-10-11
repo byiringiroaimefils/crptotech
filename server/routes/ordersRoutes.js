@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ordersController = require("../controllers/ordersController");
+const ordersController = require("../controller/ordersController");
 const requireAuth = require("../middleware/Auth"); // your JWT auth middleware
 
 // All routes require authentication

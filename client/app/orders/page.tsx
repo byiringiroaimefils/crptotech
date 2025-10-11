@@ -199,7 +199,7 @@ export default function OrdersPage() {
                             <td className="py-4">
                               <div className="flex gap-2">
                                 <Button variant="ghost" size="sm" asChild>
-                                  <Link href={`/account/orders/${order._id}`}>View</Link>
+                                  <Link href={`/orders/${order._id}`}>View</Link>
                                 </Button>
                               </div>
                             </td>

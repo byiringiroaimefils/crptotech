@@ -90,9 +90,8 @@ exports.getOrderById = async (req, res, next) => {
 
     const order = await Order.findById(id).populate("products.product", "name price image");
     if (!order) return res.status(404).json({ message: "Order not found" });
-    if (order.account.toString() !== req.user.id)
+    if (order.account.toString() !== req.user.id && req.user.role==!"admin")
       return res.status(403).json({ message: "Not authorized" });
-
     res.json({ order });
   } catch (err) {
     next(err);
