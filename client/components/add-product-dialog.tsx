@@ -28,7 +28,7 @@ interface ProductSpecs {
 }
 
 export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProductDialogProps) {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -36,8 +36,8 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
     originalPrice: 0,
     category: "",
     brand: "",
-    image: "",          // main image URL (Cloudinary)
-    images: ["", "", ""], // additional images URLs
+    image: "",
+    images: ["", "", ""],
     specs: { Display: "", Camera: "", Storage: "", Battery: "" },
     featured: false,
     quantity: 1,
@@ -58,7 +58,7 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         originalPrice: product.originalPrice || 0,
         category: product.category || "",
         brand: product.brand || "",
-        image: product.image || "", // cloudinary URL
+        image: product.image || "",
         images: Array.isArray(product.images) ? product.images : ["", "", ""],
         specs: {
           Display: product.specs?.Display || "",
@@ -128,21 +128,10 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         }
       });
 
-        response = await fetch(`${apiUrl}/products/${product.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-      } else {
-        response = await fetch(`${apiUrl}/products/add`, {
-          method: "POST",
-          body: formDataToSend,
-        })
-      }
-
+      // ✅ Single correct fetch logic
       const url = product
-        ? `http://localhost:3001/api/products/${product._id || product.id}`
-        : "http://localhost:3001/api/products/add";
+        ? `${apiUrl}/products/${product._id || product.id}`
+        : `${apiUrl}/products/add`;
       const method = product ? "PUT" : "POST";
 
       const response = await fetch(url, { method, body: formDataToSend });
@@ -163,11 +152,14 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
       onSaved?.(savedProduct);
       toast({
         title: product ? "Product updated" : "Product created",
-        description: product ? "Product updated successfully." : "Product created successfully.",
+        description: product
+          ? "Product updated successfully."
+          : "Product created successfully.",
       });
       onClose();
     } catch (err) {
-      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      const message =
+        err instanceof Error ? err.message : "An unexpected error occurred.";
       toast({ title: "Failed to save product", description: message });
     }
   };
@@ -184,29 +176,64 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name</Label>
-              <Input id="name" value={formData.name} onChange={(e) => handleChange("name", e.target.value)} required />
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="brand">Brand</Label>
-              <Input id="brand" value={formData.brand} onChange={(e) => handleChange("brand", e.target.value)} required />
+              <Input
+                id="brand"
+                value={formData.brand}
+                onChange={(e) => handleChange("brand", e.target.value)}
+                required
+              />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={formData.description} onChange={(e) => handleChange("description", e.target.value)} required />
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
+              required
+            />
           </div>
 
           {/* Quantity */}
           <div className="space-y-2">
             <Label htmlFor="quantity">Quantity</Label>
             <div className="flex items-center gap-2">
-              <Button type="button" variant="outline" size="icon" onClick={() => handleChange("quantity", Math.max(formData.quantity - 1, 1))}>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() =>
+                  handleChange("quantity", Math.max(formData.quantity - 1, 1))
+                }
+              >
                 <Minus className="h-3 w-3" />
               </Button>
-              <Input type="number" value={formData.quantity} onChange={(e) => handleChange("quantity", parseInt(e.target.value) || 1)} className="w-16 text-center" min={1} />
-              <Button type="button" variant="outline" size="icon" onClick={() => handleChange("quantity", formData.quantity + 1)}>
+              <Input
+                type="number"
+                value={formData.quantity}
+                onChange={(e) =>
+                  handleChange("quantity", parseInt(e.target.value) || 1)
+                }
+                className="w-16 text-center"
+                min={1}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => handleChange("quantity", formData.quantity + 1)}
+              >
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
@@ -216,15 +243,37 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="price">Price</Label>
-              <Input id="price" type="number" value={formData.price} onChange={(e) => handleChange("price", parseFloat(e.target.value))} min={0} step={0.01} required />
+              <Input
+                id="price"
+                type="number"
+                value={formData.price}
+                onChange={(e) =>
+                  handleChange("price", parseFloat(e.target.value))
+                }
+                min={0}
+                step={0.01}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="originalPrice">Original Price</Label>
-              <Input id="originalPrice" type="number" value={formData.originalPrice} onChange={(e) => handleChange("originalPrice", parseFloat(e.target.value))} min={0} step={0.01} />
+              <Input
+                id="originalPrice"
+                type="number"
+                value={formData.originalPrice}
+                onChange={(e) =>
+                  handleChange("originalPrice", parseFloat(e.target.value))
+                }
+                min={0}
+                step={0.01}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(v) => handleChange("category", v)}>
+              <Select
+                value={formData.category}
+                onValueChange={(v) => handleChange("category", v)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -246,7 +295,12 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
               {Object.keys(formData.specs).map((spec) => (
                 <div key={spec} className="space-y-2">
                   <Label htmlFor={spec}>{spec}</Label>
-                  <Input value={formData.specs[spec as keyof ProductSpecs]} onChange={(e) => handleSpecChange(spec as keyof ProductSpecs, e.target.value)} />
+                  <Input
+                    value={formData.specs[spec as keyof ProductSpecs]}
+                    onChange={(e) =>
+                      handleSpecChange(spec as keyof ProductSpecs, e.target.value)
+                    }
+                  />
                 </div>
               ))}
             </div>
@@ -259,10 +313,20 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
             {/* Main Image */}
             <div className="space-y-2">
               <Label>Main Image</Label>
-              <Input type="file" accept="image/*" ref={mainImageRef} onChange={(e) => handleImageChange(0, e, true)} />
+              <Input
+                type="file"
+                accept="image/*"
+                ref={mainImageRef}
+                onChange={(e) => handleImageChange(0, e, true)}
+              />
               {formData.image && (
                 <div className="relative w-32 h-32 mt-2 rounded-md overflow-hidden bg-muted">
-                  <Image src={formData.image} alt="Main Image" fill className="object-cover" />
+                  <Image
+                    src={formData.image}
+                    alt="Main Image"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               )}
             </div>
@@ -272,10 +336,22 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
               {formData.images.map((img, index) => (
                 <div key={index} className="space-y-2">
                   <Label>Additional Image {index + 1}</Label>
-                  <Input type="file" accept="image/*" ref={(el) => { if (el) additionalImageRefs.current[index] = el; }} onChange={(e) => handleImageChange(index, e)} />
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    ref={(el) => {
+                      if (el) additionalImageRefs.current[index] = el;
+                    }}
+                    onChange={(e) => handleImageChange(index, e)}
+                  />
                   {img && (
                     <div className="relative w-28 h-28 mt-2 rounded-md overflow-hidden bg-muted">
-                      <Image src={img} alt={`Additional ${index + 1}`} fill className="object-cover" />
+                      <Image
+                        src={img}
+                        alt={`Additional ${index + 1}`}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
                   )}
                 </div>
@@ -285,14 +361,21 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
 
           {/* Featured */}
           <div className="flex items-center space-x-2">
-            <Switch checked={formData.featured} onCheckedChange={(checked) => handleChange("featured", checked)} />
+            <Switch
+              checked={formData.featured}
+              onCheckedChange={(checked) => handleChange("featured", checked)}
+            />
             <Label>Featured Product</Label>
           </div>
 
           {/* Buttons */}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit">{product ? "Update Product" : "Add Product"}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              {product ? "Update Product" : "Add Product"}
+            </Button>
           </div>
         </form>
       </DialogContent>
