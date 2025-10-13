@@ -28,6 +28,7 @@ interface ProductSpecs {
 }
 
 export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProductDialogProps) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -127,8 +128,16 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         }
       });
 
-      if (!formData.name || !formData.description || !formData.price || !formData.category || !formData.brand) {
-        throw new Error("Please fill in all required fields");
+        response = await fetch(`${apiUrl}/products/${product.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      } else {
+        response = await fetch(`${apiUrl}/products/add`, {
+          method: "POST",
+          body: formDataToSend,
+        })
       }
 
       const url = product

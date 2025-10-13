@@ -16,6 +16,7 @@ import { Eye, EyeOff } from "lucide-react"
 import axios from "axios"
 
 export default function LoginPage() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState('');
@@ -29,7 +30,7 @@ export default function LoginPage() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await axios.get('http://localhost:3001/api/dashboard', { withCredentials: true });
+        await axios.get(`${apiUrl}/dashboard}`, { withCredentials: true });
         router.push('/dashboard');
       } catch (err) {
         // Not authenticated — stay on login page
@@ -45,7 +46,7 @@ export default function LoginPage() {
 
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/account/login`,
+        `${apiUrl}/account/login`,
         { email, password },
         { withCredentials: true }
       );
