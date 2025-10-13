@@ -14,14 +14,22 @@ exports.Login = async (req, res) => {
     }
 
     try {
-        // Step 2: Check if user exists
-        const user = await accountModel.findOne({ email });
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User with this email does not exist"
-            });
-        }
+// Step 2: Check if user exists
+const user = await accountModel.findOne({ email });
+if (!user) {
+  return res.status(404).json({
+    success: false,
+    message: "User with this email does not exist",
+  });
+}
+
+// Step 3: Check if user uses JWT authentication
+if (user.authProvider !== "jwt") {
+  return res.status(400).json({
+    success: false,
+    message: "This user can only log in using Google",
+  });
+}
 
 
         // Step 5: Verify password

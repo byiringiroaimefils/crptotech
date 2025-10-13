@@ -44,7 +44,6 @@ export function Header() {
           </div>
           <span className="text-xl font-bold">CrptoTech</span>
         </Link>
-
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
           {isAuthenticated && role==='admin' ? <Link href="/dashboard" className="text-sm font-medium transition-colors hover:text-primary">

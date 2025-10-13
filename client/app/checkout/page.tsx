@@ -1,8 +1,7 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import React, { useState } from "react"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -34,7 +33,10 @@ export default function CheckoutPage() {
   const [zipCode, setZipCode] = useState("")
   const [country, setCountry] = useState("United States")
   const [shippingMethod, setShippingMethod] = useState("standard")
+  // keep internal values lowercase for UI; mapping will convert to backend enum
   const [paymentMethod, setPaymentMethod] = useState("card")
+  const [phone, setPhone] = useState("")
+  const [district, setDistrict] = useState("")
 
   const shippingCost = total >= 100 ? 0 : shippingMethod === "express" ? 19.99 : 9.99
   const tax = total * 0.08
@@ -44,16 +46,67 @@ export default function CheckoutPage() {
     e.preventDefault()
     setIsProcessing(true)
 
-    // Simulate payment processing
-    setTimeout(() => {
+    // Basic client validation
+    if (!firstName || !lastName || !address || !city || !district || !phone) {
       setIsProcessing(false)
+      toast({ title: "Missing information", description: "Please complete the shipping address." })
+      return
+    }
+
+    // Map frontend values to backend enums
+    const shippingMethodMapped =
+      shippingMethod === "express" ? "Express" : shippingMethod === "standard" ? "Standard" : "Pickup"
+    const paymentMethodMapped =
+      paymentMethod === "card"
+        ? "Card"
+        : paymentMethod === "paypal"
+        ? "PayPal"
+        : paymentMethod === "mobilemoney"
+        ? "Mobile Money"
+        : "Cash on Delivery"
+
+    // Build products payload
+    const productsPayload = items.map((item) => ({
+      product: item.product.id ?? item.product._id,
+      quantity: item.quantity,
+      price: item.product.price,
+    }))
+
+    const payload = {
+      products: productsPayload,
+      totalAmount: Number(orderTotal.toFixed(2)),
+      shippingAddress: {
+        fullName: `${firstName} ${lastName}`,
+        phone,
+        country,
+        district,
+        city,
+      },
+      shippingMethod: shippingMethodMapped,
+      paymentMethod: paymentMethodMapped,
+    }
+
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/api/orders`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      )
+
       clearCart()
       toast({
-        title: "Order placed successfully!",
-        description: "Thank you for your purchase. You'll receive a confirmation email shortly.",
+        title: "Order placed",
+        description: "Your order was created and is pending payment.",
       })
+      setIsProcessing(false)
       router.push("/account")
-    }, 2000)
+    } catch (err: any) {
+      setIsProcessing(false)
+      const message = err.response?.data?.message || err.message || "Something went wrong"
+      toast({ title: "Error", description: message })
+    }
   }
 
   if (items.length === 0) {
@@ -77,7 +130,6 @@ export default function CheckoutPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-
       <main className="flex-1 bg-muted/30">
         <div className="container mx-auto px-4 py-8">
           <Button variant="ghost" asChild className="mb-6">
@@ -90,37 +142,12 @@ export default function CheckoutPage() {
           <div className="grid gap-8 lg:grid-cols-3">
             {/* Checkout Form */}
             <div className="lg:col-span-2 space-y-6">
+              {/* Shipping Address */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
                       1
-                    </div>
-                    Contact Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                      2
                     </div>
                     Shipping Address
                   </CardTitle>
@@ -129,65 +156,39 @@ export default function CheckoutPage() {
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input
-                        id="firstName"
-                        placeholder="John"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                      />
+                      <Input id="firstName" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input
-                        id="lastName"
-                        placeholder="Doe"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                      />
+                      <Input id="lastName" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      placeholder="123 Main St"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      required
-                    />
+                    <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} required />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div className="space-y-2">
                       <Label htmlFor="city">City</Label>
-                      <Input
-                        id="city"
-                        placeholder="New York"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        required
-                      />
+                      <Input id="city" value={city} onChange={(e) => setCity(e.target.value)} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="state">State</Label>
-                      <Input
-                        id="state"
-                        placeholder="NY"
-                        value={state}
-                        onChange={(e) => setState(e.target.value)}
-                        required
-                      />
+                      <Input id="state" value={state} onChange={(e) => setState(e.target.value)} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="zipCode">ZIP Code</Label>
-                      <Input
-                        id="zipCode"
-                        placeholder="10001"
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value)}
-                        required
-                      />
+                      <Input id="zipCode" value={zipCode} onChange={(e) => setZipCode(e.target.value)} required />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="district">District</Label>
+                      <Input id="district" value={district} onChange={(e) => setDistrict(e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone</Label>
+                      <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -197,11 +198,12 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
+              {/* Shipping Method */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                      3
+                      2
                     </div>
                     Shipping Method
                   </CardTitle>
@@ -232,11 +234,12 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
+              {/* Payment Method - only four selectable options, no card inputs */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold">
-                      4
+                      3
                     </div>
                     Payment Method
                   </CardTitle>
@@ -244,36 +247,38 @@ export default function CheckoutPage() {
                 <CardContent className="space-y-4">
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                     <div className="flex items-center gap-3 rounded-lg border p-4">
-                      <RadioGroupItem value="card" id="card" />
-                      <Label htmlFor="card" className="flex items-center gap-2 cursor-pointer">
+                      <RadioGroupItem value="card" id="pm-card" />
+                      <Label htmlFor="pm-card" className="flex items-center gap-2 cursor-pointer">
                         <CreditCard className="h-5 w-5" />
-                        <span className="font-medium">Credit / Debit Card</span>
+                        <span className="font-medium">Card</span>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center gap-3 rounded-lg border p-4">
+                      <RadioGroupItem value="mobilemoney" id="pm-mobilemoney" />
+                      <Label htmlFor="pm-mobilemoney" className="cursor-pointer">
+                        <span className="font-medium">Mobile Money</span>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center gap-3 rounded-lg border p-4">
+                      <RadioGroupItem value="paypal" id="pm-paypal" />
+                      <Label htmlFor="pm-paypal" className="cursor-pointer">
+                        <span className="font-medium">PayPal</span>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center gap-3 rounded-lg border p-4">
+                      <RadioGroupItem value="cod" id="pm-cod" />
+                      <Label htmlFor="pm-cod" className="cursor-pointer">
+                        <span className="font-medium">Cash on Delivery</span>
                       </Label>
                     </div>
                   </RadioGroup>
 
-                  {paymentMethod === "card" && (
-                    <div className="space-y-4 pt-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="cardNumber">Card Number</Label>
-                        <Input id="cardNumber" placeholder="1234 5678 9012 3456" required />
-                      </div>
-                      <div className="grid gap-4 sm:grid-cols-2">
-                        <div className="space-y-2">
-                          <Label htmlFor="expiry">Expiry Date</Label>
-                          <Input id="expiry" placeholder="MM/YY" required />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cvc">CVC</Label>
-                          <Input id="cvc" placeholder="123" required />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   <div className="flex items-center gap-2 text-sm text-muted-foreground pt-4">
                     <Lock className="h-4 w-4" />
-                    <span>Your payment information is secure and encrypted</span>
+                    <span>Your payment choice will be processed on the next step</span>
                   </div>
                 </CardContent>
               </Card>
@@ -286,7 +291,6 @@ export default function CheckoutPage() {
                   <CardTitle>Order Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Items */}
                   <div className="space-y-3">
                     {items.map((item) => (
                       <div key={item.product.id} className="flex gap-3">
@@ -311,7 +315,6 @@ export default function CheckoutPage() {
 
                   <Separator />
 
-                  {/* Totals */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Subtotal</span>
@@ -319,7 +322,9 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">{shippingCost === 0 ? "FREE" : `FRWFRW{shippingCost.toFixed(2)}`}</span>
+                      <span className="font-medium">
+                        {shippingCost === 0 ? "FREE" : `FRW${shippingCost.toFixed(2)}`}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">Tax</span>
@@ -346,7 +351,6 @@ export default function CheckoutPage() {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   )

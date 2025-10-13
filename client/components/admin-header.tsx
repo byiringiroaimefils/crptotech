@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
 import { useAdminSidebar } from "./admin-sidebar-context"
 
 export function AdminHeader() {
@@ -29,11 +28,11 @@ export function AdminHeader() {
       </div>
 
       <div className="flex items-center gap-4">
-        <Link href="/notification-page" >
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
-        </Button>
+        <Link href="/notification-page">
+          <Button variant="ghost" size="icon" className="relative">
+            <Bell className="h-5 w-5" />
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
+          </Button>
         </Link>
 
         <DropdownMenu>

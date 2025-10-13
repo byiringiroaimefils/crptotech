@@ -60,6 +60,7 @@ exports.Register = async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             role,
+            authProvider:"jwt"
         });
 
         await newAccount.save();
