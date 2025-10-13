@@ -41,8 +41,11 @@ app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(express.json())
 // allowing app to use cors
+// allowing app to use cors
 app.use(cors({
-    origin: "http://localhost:3000", // Frontend URL
+    origin: process.env.NODE_ENV === 'production' 
+        ? process.env.FRONTEND_URL || "http://localhost:3000"
+        : "http://localhost:3000", // Frontend URL
     credentials: true, // Allow credentials (cookies)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
