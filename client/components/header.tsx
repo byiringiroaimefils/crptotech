@@ -21,7 +21,8 @@ export function Header() {
     const checkAuth = async () => {
       try {
         // const DASHBOARD_URL = import.meta.env.VITE_DASHBOARD_URL;
-        const DASHBOARD_URL = "http://localhost:3001/api/dashboard";
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
+        const DASHBOARD_URL = `{apiUrl}/dashboard`;
         const response = await axios.get(DASHBOARD_URL, {
           withCredentials: true,
         });

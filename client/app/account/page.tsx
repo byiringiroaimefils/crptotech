@@ -36,6 +36,7 @@ import { Label } from "@/components/ui/label"
 import type { Order } from "@/lib/types"
 
 export default function AccountPage() {
+
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
@@ -48,12 +49,13 @@ export default function AccountPage() {
     username: "",
     phoneNumber: "",
   })
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
   // ✅ Check if user is logged in and load their orders
   useEffect(() => {
     const checkAuthAndLoad = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/dashboard", {
+        const res = await axios.get(`${apiUrl}/dashboard`, {
           withCredentials: true,
         })
         setUser(res.data.user)
@@ -65,7 +67,7 @@ export default function AccountPage() {
 
         // Fetch user's orders (server should return only orders for authenticated user)
         try {
-          const ordersRes = await axios.get("http://localhost:3001/api/orders", {
+          const ordersRes = await axios.get(`${apiUrl}/orders`, {
             withCredentials: true,
           })
           setOrders(ordersRes.data.orders || [])
@@ -84,7 +86,7 @@ export default function AccountPage() {
 
   const handleLogout = async () => {
     try {
-      await axios.get("http://localhost:3001/api/account/logout", {
+      await axios.get(`${apiUrl}/account/logout`, {
         withCredentials: true,
       })
       router.push("/login")
@@ -104,7 +106,7 @@ export default function AccountPage() {
       setError(null)
 
       const res = await axios.put(
-        "http://localhost:3001/api/account/update",
+        `${apiUrl}/account/update`,
         formData,
         { withCredentials: true }
       )

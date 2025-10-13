@@ -29,6 +29,7 @@ interface ProductSpecs {
 }
 
 export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProductDialogProps) {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -150,13 +151,13 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           images: formData.images.filter(Boolean),
         }
 
-        response = await fetch(`http://localhost:3001/api/products/${product.id}`, {
+        response = await fetch(`${apiUrl}/products/${product.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         })
       } else {
-        response = await fetch("http://localhost:3001/api/products/add", {
+        response = await fetch(`${apiUrl}/products/add`, {
           method: "POST",
           body: formDataToSend,
         })
