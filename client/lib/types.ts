@@ -1,5 +1,6 @@
 export interface Product {
   id: string
+  _id: string
   name: string
   description: string
   quantity: number
@@ -10,8 +11,6 @@ export interface Product {
   image: string
   imageUrl: string
   images: string[]
-  rating: number
-  reviewCount: number
   specs: Record<string, string>
   featured?: boolean
 }

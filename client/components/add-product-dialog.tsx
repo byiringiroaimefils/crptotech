@@ -1,31 +1,30 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { useToast } from "@/hooks/use-toast"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { Product } from "@/lib/types"
-import Image from "next/image"
-import { Minus, Plus } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
-
+import { useEffect, useRef, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Minus, Plus } from "lucide-react";
+import Image from "next/image";
+import type { Product } from "@/lib/types";
 
 interface AddProductDialogProps {
-  isOpen: boolean
-  onClose: () => void
-  product?: Product | null
-  onSaved?: (product: Product) => void
+  isOpen: boolean;
+  onClose: () => void;
+  product?: Product | null;
+  onSaved?: (product: Product) => void;
 }
 
 interface ProductSpecs {
-  Display: string
-  Camera: string
-  Storage: string
-  Battery: string
+  Display: string;
+  Camera: string;
+  Storage: string;
+  Battery: string;
 }
 
 export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProductDialogProps) {
@@ -37,25 +36,18 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
     originalPrice: 0,
     category: "",
     brand: "",
-    image: "",
-    images: ["", "", ""],
-    rating: 0,
-    reviewCount: 0,
-    specs: {
-      Display: "",
-      Camera: "",
-      Storage: "",
-      Battery: "",
-    },
+    image: "",          // main image URL (Cloudinary)
+    images: ["", "", ""], // additional images URLs
+    specs: { Display: "", Camera: "", Storage: "", Battery: "" },
     featured: false,
     quantity: 1,
-  })
+  });
 
-  const mainImageRef = useRef<HTMLInputElement | null>(null)
-  const additionalImageRefs = useRef<HTMLInputElement[]>([])
-  const { toast } = useToast()
+  const mainImageRef = useRef<HTMLInputElement | null>(null);
+  const additionalImageRefs = useRef<HTMLInputElement[]>([]);
+  const { toast } = useToast();
 
-  // Prefill when editing
+  // Prefill form when editing
   useEffect(() => {
     if (product && isOpen) {
       setFormData({
@@ -66,10 +58,8 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         originalPrice: product.originalPrice || 0,
         category: product.category || "",
         brand: product.brand || "",
-        image: product.image || "",
+        image: product.image || "", // cloudinary URL
         images: Array.isArray(product.images) ? product.images : ["", "", ""],
-        rating: product.rating || 0,
-        reviewCount: product.reviewCount || 0,
         specs: {
           Display: product.specs?.Display || "",
           Camera: product.specs?.Camera || "",
@@ -77,79 +67,66 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           Battery: product.specs?.Battery || "",
         },
         featured: product.featured || false,
-      })
+      });
     }
-  }, [product, isOpen])
+  }, [product, isOpen]);
 
-  // Clean up object URLs
-  useEffect(() => {
-    return () => {
-      formData.images.forEach((img) => {
-        if (img.startsWith("blob:")) URL.revokeObjectURL(img)
-      })
+  // Handle preview of newly selected images
+  const handleImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>, main = false) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const url = URL.createObjectURL(file);
+    if (main) {
+      setFormData((prev) => ({ ...prev, image: url }));
+    } else {
+      const newImages = [...formData.images];
+      newImages[index] = url;
+      setFormData((prev) => ({ ...prev, images: newImages }));
     }
-  }, [formData.images])
+  };
 
   const handleChange = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSpecChange = (spec: keyof ProductSpecs, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      specs: { ...prev.specs, [spec]: value },
-    }))
-  }
-
-  const handleImageChange = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const newImages = [...formData.images]
-      newImages[index] = URL.createObjectURL(file)
-      handleChange("images", newImages)
-    }
-  }
+    setFormData((prev) => ({ ...prev, specs: { ...prev.specs, [spec]: value } }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const formDataToSend = new FormData()
+      const formDataToSend = new FormData();
 
-      formDataToSend.append("name", formData.name)
-      formDataToSend.append("description", formData.description)
-      formDataToSend.append("quantity", formData.quantity.toString())
-      formDataToSend.append("price", formData.price.toString())
-      formDataToSend.append("originalPrice", formData.originalPrice.toString())
-      formDataToSend.append("category", formData.category)
-      formDataToSend.append("brand", formData.brand)
-      formDataToSend.append("rating", formData.rating.toString())
-      formDataToSend.append("reviewCount", formData.reviewCount.toString())
-      formDataToSend.append("featured", formData.featured.toString())
-      formDataToSend.append("specs", JSON.stringify(formData.specs))
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("quantity", formData.quantity.toString());
+      formDataToSend.append("price", formData.price.toString());
+      formDataToSend.append("originalPrice", formData.originalPrice.toString());
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("brand", formData.brand);
+      formDataToSend.append("featured", formData.featured.toString());
+      formDataToSend.append("specs", JSON.stringify(formData.specs));
 
-      const mainImageFile = mainImageRef.current?.files?.[0]
-      if (mainImageFile) formDataToSend.append("image", mainImageFile)
-
-      additionalImageRefs.current.forEach((input) => {
-        const file = input?.files?.[0]
-        if (file) formDataToSend.append("additionalImages", file)
-      })
-
-      if (!product && !mainImageFile) throw new Error("Main product image is required")
-      if (!formData.name || !formData.description || !formData.price || !formData.category || !formData.brand) {
-        throw new Error("Please fill in all required fields")
+      // Main image file
+      const mainImageFile = mainImageRef.current?.files?.[0];
+      if (mainImageFile) {
+        formDataToSend.append("image", mainImageFile);
+      } else if (formData.image) {
+        formDataToSend.append("existingImage", formData.image);
       }
 
-      let response: Response
-      let responseData: any
-
-      if (product) {
-        const payload = {
-          ...formData,
-          specs: formData.specs,
-          images: formData.images.filter(Boolean),
+      // Additional images files
+      additionalImageRefs.current.forEach((input, index) => {
+        const file = input?.files?.[0];
+        if (file) {
+          formDataToSend.append("additionalImages", file);
+        } else if (formData.images[index]) {
+          formDataToSend.append("existingAdditionalImages", formData.images[index]);
         }
+      });
 
         response = await fetch(`${apiUrl}/products/${product.id}`, {
           method: "PUT",
@@ -163,42 +140,37 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         })
       }
 
-      const contentType = response.headers.get("content-type")
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await response.json()
-      } else {
-        const textData = await response.text()
-        console.error("Unexpected response:", textData)
-        throw new Error("Invalid response format from server")
-      }
+      const url = product
+        ? `http://localhost:3001/api/products/${product._id || product.id}`
+        : "http://localhost:3001/api/products/add";
+      const method = product ? "PUT" : "POST";
 
-      if (!response.ok) {
-        throw new Error(responseData.message || `Server error: ${response.status}`)
-      }
+      const response = await fetch(url, { method, body: formDataToSend });
+      const data = await response.json();
 
-      const createdOrUpdated = responseData.product
-      const mapped: Product = {
-        ...createdOrUpdated,
-        id: createdOrUpdated._id,
-        image: createdOrUpdated.imageUrl,
-        price: Number(createdOrUpdated.price),
-        quantity: Number(createdOrUpdated.quantity),
-        originalPrice: createdOrUpdated.originalPrice ? Number(createdOrUpdated.originalPrice) : undefined,
-        rating: createdOrUpdated.rating ? Number(createdOrUpdated.rating) : 0,
-        reviewCount: createdOrUpdated.reviewCount ? Number(createdOrUpdated.reviewCount) : 0,
-      }
+      if (!response.ok) throw new Error(data.message || "Server error");
 
-      onSaved?.(mapped)
+      const savedProduct: Product = {
+        ...data.product,
+        id: data.product._id,
+        image: data.product.imageUrl || data.product.image,
+        images: data.product.images || [],
+        price: Number(data.product.price),
+        quantity: Number(data.product.quantity),
+        originalPrice: data.product.originalPrice ? Number(data.product.originalPrice) : undefined,
+      };
+
+      onSaved?.(savedProduct);
       toast({
         title: product ? "Product updated" : "Product created",
         description: product ? "Product updated successfully." : "Product created successfully.",
-      })
-      onClose()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "An unexpected error occurred."
-      toast({ title: "Failed to save product", description: message })
+      });
+      onClose();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An unexpected error occurred.";
+      toast({ title: "Failed to save product", description: message });
     }
-  }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -206,102 +178,53 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
         <DialogHeader>
           <DialogTitle>{product ? "Update Product" : "Add New Product"}</DialogTitle>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Name & Brand */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Product Name</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-                placeholder="e.g., iPhone 15 Pro Max"
-                required
-              />
+              <Input id="name" value={formData.name} onChange={(e) => handleChange("name", e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="brand">Brand</Label>
-              <Input
-                id="brand"
-                value={formData.brand}
-                onChange={(e) => handleChange("brand", e.target.value)}
-                placeholder="e.g., Apple"
-                required
-              />
+              <Input id="brand" value={formData.brand} onChange={(e) => handleChange("brand", e.target.value)} required />
             </div>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="Enter product description"
-              required
-            />
+            <Textarea id="description" value={formData.description} onChange={(e) => handleChange("description", e.target.value)} required />
           </div>
 
           {/* Quantity */}
           <div className="space-y-2">
             <Label htmlFor="quantity">Quantity</Label>
             <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleChange("quantity", Math.max(formData.quantity - 1, 1))}
-              >
+              <Button type="button" variant="outline" size="icon" onClick={() => handleChange("quantity", Math.max(formData.quantity - 1, 1))}>
                 <Minus className="h-3 w-3" />
               </Button>
-              <Input
-                id="quantity"
-                type="number"
-                value={formData.quantity}
-                onChange={(e) => handleChange("quantity", parseInt(e.target.value) || 1)}
-                className="w-16 text-center"
-                min="1"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => handleChange("quantity", formData.quantity + 1)}
-              >
+              <Input type="number" value={formData.quantity} onChange={(e) => handleChange("quantity", parseInt(e.target.value) || 1)} className="w-16 text-center" min={1} />
+              <Button type="button" variant="outline" size="icon" onClick={() => handleChange("quantity", formData.quantity + 1)}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
           </div>
 
-          {/* Price, Original Price, Category */}
+          {/* Price & Category */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="price">Price (FRW)</Label>
-              <Input
-                id="price"
-                type="number"
-                value={formData.price || ""}
-                onChange={(e) => handleChange("price", parseFloat(e.target.value))}
-                min="0"
-                step="0.01"
-                required
-              />
+              <Label htmlFor="price">Price</Label>
+              <Input id="price" type="number" value={formData.price} onChange={(e) => handleChange("price", parseFloat(e.target.value))} min={0} step={0.01} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="originalPrice">Original Price (FRW)</Label>
-              <Input
-                id="originalPrice"
-                type="number"
-                value={formData.originalPrice || ""}
-                onChange={(e) => handleChange("originalPrice", parseFloat(e.target.value))}
-                min="0"
-                step="0.01"
-              />
+              <Label htmlFor="originalPrice">Original Price</Label>
+              <Input id="originalPrice" type="number" value={formData.originalPrice} onChange={(e) => handleChange("originalPrice", parseFloat(e.target.value))} min={0} step={0.01} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
+              <Select value={formData.category} onValueChange={(v) => handleChange("category", v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -316,20 +239,14 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
             </div>
           </div>
 
-          {/* Specifications */}
+          {/* Specs */}
           <div className="space-y-4">
             <h3 className="font-medium text-lg">Product Specifications</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {Object.keys(formData.specs).map((spec) => (
                 <div key={spec} className="space-y-2">
                   <Label htmlFor={spec}>{spec}</Label>
-                  <Input
-                    id={spec}
-                    value={formData.specs[spec as keyof ProductSpecs]}
-                    onChange={(e) => handleSpecChange(spec as keyof ProductSpecs, e.target.value)}
-                    placeholder={`Enter ${spec.toLowerCase()}`}
-                    required
-                  />
+                  <Input value={formData.specs[spec as keyof ProductSpecs]} onChange={(e) => handleSpecChange(spec as keyof ProductSpecs, e.target.value)} />
                 </div>
               ))}
             </div>
@@ -338,49 +255,27 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
           {/* Images */}
           <div className="space-y-4">
             <h3 className="font-medium text-lg">Product Images</h3>
+
+            {/* Main Image */}
             <div className="space-y-2">
-              <Label htmlFor="mainImage">Main Image</Label>
-              <Input
-                id="mainImage"
-                type="file"
-                accept="image/*"
-                ref={mainImageRef}
-                onChange={(e) => handleChange("image", e.target.files?.[0]?.name || "")}
-                required={!product}
-              />
-              {product?.image && (
-                <div className="mt-2">
-                  <p className="text-xs text-muted-foreground mb-2">
-                    Current image (kept if not replaced):
-                  </p>
-                  <div className="relative w-32 h-32 overflow-hidden rounded-md bg-muted">
-                    <Image src={product.image} alt={product.name} fill className="object-cover" />
-                  </div>
+              <Label>Main Image</Label>
+              <Input type="file" accept="image/*" ref={mainImageRef} onChange={(e) => handleImageChange(0, e, true)} />
+              {formData.image && (
+                <div className="relative w-32 h-32 mt-2 rounded-md overflow-hidden bg-muted">
+                  <Image src={formData.image} alt="Main Image" fill className="object-cover" />
                 </div>
               )}
             </div>
 
+            {/* Additional Images */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {[0, 1, 2].map((index) => (
+              {formData.images.map((img, index) => (
                 <div key={index} className="space-y-2">
-                  <Label htmlFor={`additionalImage${index}`}>Additional Image {index + 1}</Label>
-                  <Input
-                    id={`additionalImage${index}`}
-                    type="file"
-                    accept="image/*"
-                    ref={(el) => {
-                      if (el) additionalImageRefs.current[index] = el
-                    }}
-                    onChange={(e) => handleImageChange(index, e)}
-                  />
-                  {product?.images?.[index] && (
-                    <div className="relative w-28 h-28 overflow-hidden rounded-md bg-muted">
-                      <Image
-                        src={product.images[index]}
-                        alt={`${product.name} additional ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
+                  <Label>Additional Image {index + 1}</Label>
+                  <Input type="file" accept="image/*" ref={(el) => { if (el) additionalImageRefs.current[index] = el; }} onChange={(e) => handleImageChange(index, e)} />
+                  {img && (
+                    <div className="relative w-28 h-28 mt-2 rounded-md overflow-hidden bg-muted">
+                      <Image src={img} alt={`Additional ${index + 1}`} fill className="object-cover" />
                     </div>
                   )}
                 </div>
@@ -388,27 +283,19 @@ export function AddProductDialog({ isOpen, onClose, product, onSaved }: AddProdu
             </div>
           </div>
 
-           {/* Featured */}
-           <div className="flex items-center space-x-2">
-            <Switch
-              id="featured"
-              checked={formData.featured}
-              onCheckedChange={(checked) => handleChange("featured", checked)}
-            />
-            <Label htmlFor="featured">Featured Product</Label>
+          {/* Featured */}
+          <div className="flex items-center space-x-2">
+            <Switch checked={formData.featured} onCheckedChange={(checked) => handleChange("featured", checked)} />
+            <Label>Featured Product</Label>
           </div>
 
           {/* Buttons */}
           <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="w-full sm:w-auto">
-              Cancel
-            </Button>
-            <Button type="submit" className="w-full sm:w-auto">
-              {product ? "Update Product" : "Add Product"}
-            </Button>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit">{product ? "Update Product" : "Add Product"}</Button>
           </div>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
