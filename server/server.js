@@ -1,18 +1,7 @@
 // Load environment variables first
-const path = require('path');
 const dotenv = require('dotenv');
 const result = dotenv.config();
 
-if (result.error) {
-    console.error('Error loading .env file:', result.error);
-    process.exit(1);
-}
-
-console.log('Environment Variables Loaded:', {
-    node_env: process.env.NODE_ENV,
-    cloudinary_configured: !!process.env.CLOUDINARY_API_KEY,
-    env_path: path.resolve(__dirname, '.env')
-});
 
 // initalizing express app
 const express = require('express')
