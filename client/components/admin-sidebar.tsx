@@ -17,6 +17,17 @@ export function AdminSidebar() {
 
   const SidebarContent = (
     <div className="flex h-full flex-col">
+      <div className="px-4 h-16 border-b border-sidebar-border">
+        <Link href="/" className="flex items-center gap-3 py-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary">
+            <span className="text-lg font-bold text-primary-foreground">C</span>
+          </div>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold leading-4">CrptoTech</span>
+            <span className="text-xs text-sidebar-foreground/70">Admin panel</span>
+          </div>
+        </Link>
+      </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
         {navigation.map((item) => {
           const isActive = pathname === item.href

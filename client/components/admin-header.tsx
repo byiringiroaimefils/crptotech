@@ -24,7 +24,7 @@ export function AdminHeader() {
         <Button variant="ghost" size="icon" className="md:hidden" onClick={toggle}>
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="font-sans text-xl font-semibold text-foreground">Dashboard</h1>
+        {/* <h1 className="font-sans text-xl font-semibold text-foreground">{{name.com}}</h1> */}
       </div>
 
       <div className="flex items-center gap-4">
@@ -38,19 +38,17 @@ export function AdminHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-              <Avatar>
-                <AvatarImage src="/placeholder.svg?height=40&width=40" />
-                <AvatarFallback>AD</AvatarFallback>
-              </Avatar>
+              <div  className="border-2 p-2 rounded-full">
+                <h2>AD</h2>
+              </div>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>My Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem>sign out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

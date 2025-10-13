@@ -12,7 +12,7 @@ interface StatCardProps {
 
 export function StatCard({ title, value, change, changeType, icon: Icon }: StatCardProps) {
   return (
-    <Card className="bg-card">
+    <Card className="bg-card w-full min-h-[200px]">
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
