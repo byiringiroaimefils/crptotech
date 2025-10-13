@@ -1,0 +1,6 @@
+[build]
+  command = "cd client && npm run build"
+  publish = "client/.netlify/output"  # Netlify uses this for Next.js
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
