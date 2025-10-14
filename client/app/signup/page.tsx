@@ -20,6 +20,7 @@ export default function SignupPage() {
   const [error, setError] = useState("")
   const [username, setName] = useState("")
   const [email, setEmail] = useState("")
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"
   const [phoneNumber,setPhoneNumber] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
@@ -33,7 +34,7 @@ export default function SignupPage() {
     setError('');
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/account/register`,
+        `${apiUrl}/account/register`,
         { email, password,phoneNumber,username },
         { withCredentials: true }
       );
@@ -154,7 +155,7 @@ export default function SignupPage() {
             </div>
 
             <div className="grid grid-cols-1">
-              <Button variant="outline" onClick={() => window.location.href = "http://localhost:3001/api/auth/google"} type="button" className="bg-transparent">
+              <Button variant="outline" onClick={() => window.location.href = `${apiUrl}/auth/google`} type="button" className="bg-transparent">
                 <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"

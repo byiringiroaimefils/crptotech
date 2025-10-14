@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation"
 import axios from "axios"
 
 export default function () {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
   const [isAddProductOpen, setIsAddProductOpen] = useState(false)
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -32,7 +33,7 @@ export default function () {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/api/dashboard", {
+        const res = await axios.get(`${apiUrl}/dashboard`, {
           withCredentials: true,
         })
       } catch (err) {

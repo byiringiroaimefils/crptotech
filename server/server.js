@@ -1,18 +1,7 @@
 // Load environment variables first
-const path = require('path');
 const dotenv = require('dotenv');
 const result = dotenv.config();
 
-if (result.error) {
-    console.error('Error loading .env file:', result.error);
-    process.exit(1);
-}
-
-console.log('Environment Variables Loaded:', {
-    node_env: process.env.NODE_ENV,
-    cloudinary_configured: !!process.env.CLOUDINARY_API_KEY,
-    env_path: path.resolve(__dirname, '.env')
-});
 
 // initalizing express app
 const express = require('express')
@@ -52,8 +41,11 @@ app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(express.json())
 // allowing app to use cors
+// allowing app to use cors
 app.use(cors({
-    origin: "http://localhost:3000", // Frontend URL
+    origin: process.env.NODE_ENV === 'production' 
+        ? process.env.FRONTEND_URL || "http://localhost:3000"
+        : "http://localhost:3000", // Frontend URL
     credentials: true, // Allow credentials (cookies)
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
@@ -71,7 +63,7 @@ app.use((err, req, res, next) => {
 });
 // enabling CORS
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', 'http://localhost:3000')
+    res.header('Access-Control-Allow-Origin', process.env.FRONTED_URL || 'http://localhost:3000') // update to match the domain you will make the request from
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept')
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     if (req.method === 'OPTIONS') {

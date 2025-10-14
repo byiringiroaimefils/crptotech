@@ -28,6 +28,7 @@ export interface AddProductDialogProps {
 
 
 export default function StockPage() {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,7 @@ export default function StockPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/products");
+        const res = await fetch(`${apiUrl}/products`);
         if (!res.ok) throw new Error("Failed to fetch products");
         const data = await res.json();
 
